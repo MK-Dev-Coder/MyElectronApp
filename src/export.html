@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Export to Excel</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="main-container">
+    <!-- Sidebar (left column) -->
+    <aside class="sidebar">
+      <nav class="menu">
+        <ul>
+          <li class="menu-item">
+            <a href="index.html">
+              <img src="images/home.png" alt="Dashboard Icon" />
+              <span data-i18n="home">Home</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="user.html">
+              <img src="images/add-user.png" alt="Doctors Icon" />
+              <span data-i18n="addUser">Add User</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="editUser.html">
+              <img src="images/user.png" alt="Patients Icon" />
+              <span data-i18n="editUser">Edit User</span>
+            </a>
+            <li class="menu-item">
+            <a href="member.html">
+              <img src="images/team.png" alt="Patients Icon" />
+              <span data-i18n="Members">Member</span>
+            </a>
+          </li>
+          </li>
+          <li class="menu-item">
+            <a href="analytics.html">
+              <img src="images/analytics.png" alt="Analytics Icon">
+              <span data-i18n="analytics">Analytics</span>
+            </a>
+          </li>
+          <li class="menu-item active">
+            <a href="export.html" id="sidebar-export-btn">
+              <img src="images/sheet.png" alt="Calendar Icon" />
+              <span data-i18n="exportToExcel">Export to Excel</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="apoiment.html">
+              <img src="images/add-event.png" alt="Report Icon" />
+              <span data-i18n="appointment">Appointment</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="settings.html">
+              <img src="images/setting.png" alt="Settings Icon" />
+              <span data-i18n="settings">Settings</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="#">
+              <img src="images/question.png" alt="Help Icon" />
+              <span data-i18n="help">Help</span>
+            </a>
+          </li>
+          <li class="menu-item logout">
+            <a href="#">
+              <img src="images/door.png" alt="Logout Icon" />
+              <span data-i18n="logout">Logout</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Middle content -->
+    <div class="middle-content">
+      <div class="export-container">
+        <h1 data-i18n="exportToExcel">Export to Excel</h1>
+        <p class="export-description" data-i18n="exportDescription">
+          Export all client data to an Excel spreadsheet file.
+        </p>
+        <button id="export-btn" class="export-button">
+          <i class="fas fa-file-export"></i>
+          <span data-i18n="exportToExcel">Export to Excel</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load renderer.js at the bottom so DOM is fully loaded -->
+  <script src="renderer.js"></script>
+  <script type="module">
+    import { updateLanguage } from './translate.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      updateLanguage();
+    });
+  </script>
+  
+  <style>
+    .export-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: 40px auto;
+    }
+    
+    .export-container h1 {
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .export-description {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+    
+    .export-button {
+      padding: 15px 30px;
+      font-size: 16px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #6c63ff, #4834d4);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .export-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+    }
+    
+    .export-button:active {
+      transform: translateY(0);
+    }
+
+    /* Media queries for responsiveness */
+    @media (max-width: 768px) {
+      .export-container {
+        margin: 20px;
+        padding: 20px;
+      }
+      
+      .export-button {
+        padding: 12px 24px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</body>
+</html>

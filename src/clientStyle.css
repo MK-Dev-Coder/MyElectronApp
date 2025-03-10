@@ -1,0 +1,99 @@
+
+ 
+
+  /* Scrollable Patient Table Styling */
+  .patients-table {
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .table-header {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 1.5fr 1fr 0.8fr;
+    padding: 15px;
+    font-weight: 600;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eaeaea;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  #patient-rows {
+    max-height: 480px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #6c63ff #f0f0f0;
+  }
+
+  #patient-rows::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #patient-rows::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+  }
+
+  #patient-rows::-webkit-scrollbar-thumb {
+    background-color: #6c63ff;
+    border-radius: 10px;
+  }
+
+  .table-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 1.5fr 1fr 0.8fr;
+    padding: 12px 15px;
+    align-items: center;
+    border-bottom: 1px solid #eaeaea;
+    transition: all 0.2s ease;
+  }
+
+  .table-row:hover {
+    background-color: rgba(108, 99, 255, 0.05);
+  }
+
+  .table-row:last-child {
+    border-bottom: none;
+  }
+
+  .table-row span {
+    padding: 3px 0;
+  }
+
+  .table-row .view-btn {
+    background-color: #6c63ff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .table-row .view-btn:hover {
+    background-color: #5a52cc;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  }
+
+  /* Empty state styling */
+  #patient-rows.empty {
+    padding: 30px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .table-header,
+    .table-row {
+      grid-template-columns: 1.2fr 1fr 1fr 0.8fr 0.6fr;
+      font-size: 14px;
+    }
+  }

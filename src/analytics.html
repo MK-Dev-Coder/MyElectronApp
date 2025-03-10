@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Analytics</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="analyticsStyle.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Import translation module -->
+  <script type="module">
+    import { updateLanguage, translations } from './translate.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      updateLanguage();
+      window.i18n = { translations }; // Make translations available globally
+    });
+  </script>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Sidebar (left column) -->
+    <aside class="sidebar">
+      <nav class="menu">
+        <ul>
+          <li class="menu-item">
+            <a href="index.html">
+              <img src="images/home.png" alt="Dashboard Icon">
+              <span data-i18n="home">Home</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="user.html">
+              <img src="images/add-user.png" alt="Doctors Icon">
+              <span data-i18n="addUser">Add User</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="editUser.html">
+              <img src="images/user.png" alt="Patients Icon">
+              <span data-i18n="editUser">Edit User</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="member.html">
+              <img src="images/team.png" alt="Patients Icon" />
+              <span data-i18n="Members">Member</span>
+            </a>
+          </li>
+          <li class="menu-item active">
+            <a href="analytics.html">
+              <img src="images/analytics.png" alt="Analytics Icon">
+              <span data-i18n="analytics">Analytics</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="export.html" id="export-btn">
+              <img src="images/sheet.png" alt="Calendar Icon">
+              <span data-i18n="exportToExcel">Export to Excel</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="apoiment.html">
+              <img src="images/report-icon.png" alt="Report Icon">
+              <span data-i18n="appointment">Appointment</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="settings.html">
+              <img src="images/setting.png" alt="Settings Icon">
+              <span data-i18n="settings">Settings</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="help.html">
+              <img src="images/question.png" alt="Help Icon">
+              <span data-i18n="help">Help</span>
+            </a>
+          </li>
+          <li class="menu-item logout">
+            <a href="#">
+              <img src="images/door.png" alt="Logout Icon">
+              <span data-i18n="logout">Logout</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content: Analytics -->
+    <div class="middle-content">
+      <h1 data-i18n="analytics">Analytics</h1>
+      
+      <!-- Charts Container -->
+      <div class="charts-container">
+        <div class="chart-box">
+          <h3 data-i18n="clientsPerMonth">Clients per Month</h3>
+          <canvas id="clientsChart" width="400" height="200"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3 data-i18n="clientsWithMedical">Clients with Medical Office</h3>
+          <canvas id="medicalOfficeChart" width="400" height="200"></canvas>
+        </div>
+        <!-- New Gender Distribution Chart -->
+        <div class="chart-box">
+          <h3 data-i18n="genderDistribution">Gender Distribution</h3>
+          <canvas id="genderChart" width="400" height="200"></canvas>
+        </div>
+      </div>
+      
+      <div id="monthlyCountsDisplay" class="analytics-data"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Use getClients if getMonthlyCounts is not available
+      const apiMethod = window.electronAPI.getMonthlyCounts || window.electronAPI.getClients;
+      
+      if (!apiMethod) {
+        console.error('Required API methods are not available');
+        document.getElementById('monthlyCountsDisplay').textContent = 'Error: API methods not available';
+        return;
+      }
+      
+      apiMethod().then(data => {
+        if (window.electronAPI.getMonthlyCounts) {
+          console.log('Monthly counts:', data);
+          renderMonthlyCountsChart(data);
+          
+          // Also get clients for the pie charts
+          window.electronAPI.getClients().then(clients => {
+            renderMedicalOfficePieChart(clients);
+            renderGenderPieChart(clients); // New function for gender distribution
+          }).catch(err => {
+            console.error('Error fetching clients data:', err);
+          });
+        } else {
+          // If getMonthlyCounts is not available, process client data
+          console.log('Processing client data for analytics');
+          const monthlyData = processClientData(data);
+          renderMonthlyCountsChart(monthlyData);
+          renderMedicalOfficePieChart(data); // data is already client list
+          renderGenderPieChart(data); // New function for gender distribution
+        }
+      }).catch(err => {
+        console.error('Error fetching data:', err);
+        document.getElementById('monthlyCountsDisplay').textContent = 'Error loading data';
+      });
+    });
+
+    // Process client data to extract monthly counts if getMonthlyCounts is not available
+    function processClientData(clients) {
+      const monthlyData = {};
+      
+      // First, determine the date range (e.g., the last 12 months)
+      const today = new Date();
+      const endYear = today.getFullYear();
+      const endMonth = today.getMonth();
+      
+      // Create entries for the last 12 months
+      for (let i = 0; i < 12; i++) {
+        let month = endMonth - i;
+        let year = endYear;
+        
+        // Adjust for month wrapping
+        if (month < 0) {
+          month += 12;
+          year -= 1;
+        }
+        
+        const key = `${year}-${month}`;
+        monthlyData[key] = {
+          month: month,
+          year: year,
+          client_count: 0
+        };
+      }
+      
+      // Now populate with actual client data
+      clients.forEach(client => {
+        if (!client.created_at) return;
+        
+        let date;
+        try {
+          // Handle different date formats
+          if (client.created_at.includes('T')) {
+            date = new Date(client.created_at);
+          } else {
+            // Convert "YYYY-MM-DD HH:MM:SS" to Date object
+            date = new Date(client.created_at.replace(' ', 'T'));
+          }
+          
+          if (isNaN(date)) return;
+          
+          const month = date.getMonth();
+          const year = date.getFullYear();
+          const key = `${year}-${month}`;
+          
+          // Only count if within our predefined range
+          if (monthlyData[key]) {
+            monthlyData[key].client_count++;
+          }
+        } catch (e) {
+          console.warn('Error processing date:', client.created_at, e);
+        }
+      });
+      
+      return Object.values(monthlyData);
+    }
+
+    function renderMonthlyCountsChart(monthlyData) {
+      // Get current language for translations
+      const lang = localStorage.getItem('preferredLanguage') || 'en';
+      const translations = window.i18n?.translations || {};
+      
+      // Map each row to a label like "August 2023" and its count.
+      const monthNames = {
+        en: ['January', 'February', 'March', 'April', 'May', 'June',
+             'July', 'August', 'September', 'October', 'November', 'December'],
+        el: ['Ιανουάριος', 'Φεβρουάριος', 'Μάρτιος', 'Απρίλιος', 'Μάιος', 'Ιούνιος',
+             'Ιούλιος', 'Αύγουστος', 'Σεπτέμβριος', 'Οκτώβριος', 'Νοέμβριος', 'Δεκέμβριος']
+      };
+      
+      // Use month names in the current language
+      const currentMonthNames = monthNames[lang] || monthNames.en;
+      
+      // Sort data by date
+      monthlyData.sort((a, b) => {
+        if (a.year !== b.year) return a.year - b.year;
+        return a.month - b.month;
+      });
+      
+      const labels = monthlyData.map(item => `${currentMonthNames[item.month]} ${item.year}`);
+      const data = monthlyData.map(item => item.client_count);
+
+      const ctx = document.getElementById('clientsChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: translations[lang]?.clientsPerMonth || 'Clients per Month',
+            data: data,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+      
+      // Format the data display better
+      const displayElement = document.getElementById('monthlyCountsDisplay');
+      
+      if (monthlyData.length === 0) {
+        displayElement.innerHTML = '<p>No client data available for analysis</p>';
+        return;
+      }
+      
+      // Get translations for table headers
+      const monthlySummary = translations[lang]?.monthlySummary || 'Monthly Client Registration Summary';
+      const monthHeader = translations[lang]?.month || 'Month';
+      const yearHeader = translations[lang]?.year || 'Year';
+      const clientCountHeader = translations[lang]?.clientCount || 'Number of Clients';
+      
+      // Create a more readable display
+      let html = `<h3>${monthlySummary}</h3>`;
+      html += '<table class="analytics-table">';
+      html += `<tr><th>${monthHeader}</th><th>${yearHeader}</th><th>${clientCountHeader}</th></tr>`;
+      
+      monthlyData.forEach(item => {
+        html += `<tr>
+          <td>${currentMonthNames[item.month]}</td>
+          <td>${item.year}</td>
+          <td>${item.client_count}</td>
+        </tr>`;
+      });
+      
+      html += '</table>';
+      displayElement.innerHTML = html;
+    }
+    
+    // Function to render the medical office pie chart
+    function renderMedicalOfficePieChart(clients) {
+      // Get current language for translations
+      const lang = localStorage.getItem('preferredLanguage') || 'en';
+      const translations = window.i18n?.translations || {};
+      
+      // Translated labels
+      const withMedicalLabel = translations[lang]?.withMedical || 'With Medical Office';
+      const withoutMedicalLabel = translations[lang]?.withoutMedical || 'Without Medical Office';
+      
+      // Count clients with and without medical offices
+      let withMedicalOffice = 0;
+      let withoutMedicalOffice = 0;
+      
+      clients.forEach(client => {
+        // Check if medical field contains "Ναι" (Yes in Greek) or similar
+        if (client.medical === 'Ναι' || client.medical === 'Yes' || client.medical === 'true' || client.medical === true) {
+          withMedicalOffice++;
+        } else {
+          withoutMedicalOffice++;
+        }
+      });
+      
+      // Default values if no data
+      if (withMedicalOffice === 0 && withoutMedicalOffice === 0) {
+        withoutMedicalOffice = 1; // To show something in the chart
+      }
+      
+      const ctx = document.getElementById('medicalOfficeChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: [withMedicalLabel, withoutMedicalLabel],
+          datasets: [{
+            data: [withMedicalOffice, withoutMedicalOffice],
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.5)',
+              'rgba(255, 99, 132, 0.5)'
+            ],
+            borderColor: [
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 99, 132, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+            }
+          }
+        }
+      });
+    }
+    
+  
+    // New function to render the gender distribution pie chart
+    function renderGenderPieChart(clients) {
+      // Get current language for translations
+      const lang = localStorage.getItem('preferredLanguage') || 'en';
+      const translations = window.i18n?.translations || {};
+      
+      // Translated labels
+      const maleLabel = translations[lang]?.male || 'Male';
+      const femaleLabel = translations[lang]?.female || 'Female';
+      
+      // Count clients by gender
+      let maleCount = 0;
+      let femaleCount = 0;
+      
+      clients.forEach(client => {
+        // Check different possible formats of gender data
+        const gender = (client.gender || client.sex || '').toLowerCase();
+        
+        if (gender === 'male' || gender === 'm' || gender === 'ανδρας' || 
+            gender === 'άνδρας' || gender === 'αρσενικό' || gender === 'αρσενικο') {
+          maleCount++;
+        } else {
+          // Count all other values as female
+          femaleCount++;
+        }
+      });
+      
+      // Default values if no data
+      if (maleCount === 0 && femaleCount === 0) {
+        maleCount = 1;
+        femaleCount = 1;
+      }
+      
+      // Prepare data for the chart
+      const labels = [maleLabel, femaleLabel];
+      const data = [maleCount, femaleCount];
+      const backgroundColor = [
+        'rgba(54, 162, 235, 0.5)', 
+        'rgba(255, 99, 132, 0.5)'
+      ];
+      const borderColor = [
+        'rgba(54, 162, 235, 1)', 
+        'rgba(255, 99, 132, 1)'
+      ];
+      
+      const ctx = document.getElementById('genderChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: backgroundColor,
+            borderColor: borderColor,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+            }
+          }
+        }
+      });
+    }
+  </script>
+
+  <script>
+    // Add this before the closing  tag
+// Add dynamic counters to charts
+document.addEventListener('DOMContentLoaded', () => {
+  // Create counters for each chart
+  const chartBoxes = document.querySelectorAll('.chart-box');
+  
+  chartBoxes.forEach((box, index) => {
+    // Create counter element
+    const counter = document.createElement('div');
+    counter.className = 'chart-counter';
+    counter.textContent = `Chart ${index + 1}/3`;
+    box.style.position = 'relative';
+    box.appendChild(counter);
+    
+    // Add animation class
+    box.classList.add('animated-chart');
+  });
+});
+    
+  </script>
+  
+  <style>
+    /* Add some specific styles for the analytics page */
+    .analytics-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    .analytics-table th, .analytics-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    
+    .analytics-table th {
+      background-color: #f2f2f2;
+    }
+    
+    .analytics-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
+    .analytics-data {
+      margin-top: 30px;
+    }
+    
+    /* New styles for chart layout */
+    .charts-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .chart-box {
+      flex: 1;
+      min-width: 300px;
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .chart-box h3 {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
+</body>
+</html>

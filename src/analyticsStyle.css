@@ -1,0 +1,142 @@
+
+  /* Modern Analytics Dashboard Styling */
+  .middle-content {
+    padding: 25px;
+    background-color: #f5f7fa;
+    border-radius: 12px;
+    position: relative;
+  }
+  
+  .middle-content h1 {
+    font-size: 28px;
+    margin-bottom: 25px;
+    color: #2c3e50;
+    font-weight: 600;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+    position: relative;
+  }
+  
+  .middle-content h1:after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 80px;
+    height: 2px;
+    background-color: #6c63ff;
+  }
+  
+  /* Enhanced chart containers */
+  .charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+  }
+  
+  .chart-box {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    padding: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(230, 230, 240, 0.7);
+  }
+  
+  .chart-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  }
+  
+  .chart-box h3 {
+    font-size: 18px;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: left;
+    font-weight: 600;
+    position: relative;
+    padding-left: 15px;
+    border-left: 4px solid #6c63ff;
+  }
+  
+  /* Analytics table styling */
+  .analytics-data {
+    margin-top: 40px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  }
+  
+  .analytics-data h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    font-weight: 600;
+  }
+  
+  .analytics-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 15px;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .analytics-table th {
+    background-color: #f8fafc;
+    padding: 14px 12px;
+    text-align: left;
+    color: #5e6e82;
+    font-weight: 600;
+    border-bottom: 2px solid #e9ecef;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+  }
+  
+  .analytics-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #edf2f7;
+    color: #4a5568;
+    vertical-align: middle;
+  }
+  
+  .analytics-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .analytics-table tr:hover td {
+    background-color: #f9fafb;
+  }
+  
+  /* Animated statistics */
+  .chart-counter {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #6c63ff;
+    color: white;
+    border-radius: 50px;
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .charts-container {
+      grid-template-columns: 1fr;
+    }
+    
+    .middle-content {
+      padding: 15px;
+    }
+    
+    .analytics-table {
+      font-size: 14px;
+    }
+  }

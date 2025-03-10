@@ -1,0 +1,19 @@
+# Dependencies
+/node_modules
+
+# Production build
+/dist
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+
+# Database files
+*.db
+
+# IDE files
+.vscode/*
+!.vscode/extensions.json

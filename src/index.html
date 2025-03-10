@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <title>Electron Patients</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="popUpWindow.css" />
+  <link rel="stylesheet" href="clientStyle.css" />
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="main-container">
+    <!-- Sidebar (left column) -->
+    <aside class="sidebar">
+      <nav class="menu">
+        <ul>
+          <li class="menu-item active">
+            <a href="index.html">
+              <img src="images/home.png" alt="Dashboard Icon" />
+              <span data-i18n="home">Home</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="user.html">
+              <img src="images/add-user.png" alt="Doctors Icon" />
+              <span data-i18n="addUser">Add User</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="editUser.html">
+              <img src="images/user.png" alt="Patients Icon" />
+              <span data-i18n="editUser">Edit User</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="member.html">
+              <img src="images/team.png" alt="Patients Icon" />
+              <span data-i18n="Members">Member</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="analytics.html">
+              <img src="images/analytics.png" alt="Analytics Icon">
+              <span data-i18n="analytics">Analytics</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="export.html" id="export-btn">
+              <img src="images/sheet.png" alt="Calendar Icon" />
+              <span data-i18n="exportToExcel">Export to Excel</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="apoiment.html">
+              <img src="images/add-event.png" alt="Report Icon" />
+              <span data-i18n="appointment">Appointment</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="settings.html">
+              <img src="images/setting.png" alt="Settings Icon" />
+              <span data-i18n="settings">Settings</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="help.html">
+              <img src="images/question.png" alt="Help Icon" />
+              <span data-i18n="help">Help</span>
+            </a>
+          </li>
+          <li class="menu-item logout">
+            <a href="#">
+              <img src="images/door.png" alt="Logout Icon" />
+              <span data-i18n="logout">Logout</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Middle column: Stats + Patients -->
+    <div class="middle-content">
+      <div class="stats-card">
+        <div class="icon">📈</div>
+        <div class="details">
+          <h2 id="statsNumber">324</h2>
+          <p data-i18n="clientsPerMonth">Clients per month</p>
+        </div>
+        <div class="growth"></div>
+      </div>
+
+      <!-- Advanced Search Bar -->
+      <div class="search-container">
+        <div class="search-wrapper">
+          <div class="search-icon">
+            <i class="fas fa-search"></i>
+          </div>
+          <input type="text" id="client-search" class="search-input" placeholder="Αναζήτηση πελατών..." data-i18n-placeholder="searchClients" />
+          <div class="search-options">
+            <button class="search-filter-btn" id="toggle-filters">
+              <i class="fas fa-filter"></i>
+            </button>
+          </div>
+        </div>
+        <div class="filter-panel" id="filter-panel">
+          <div class="filter-group">
+            <label data-i18n="searchBy">Αναζήτηση κατά:</label>
+            <div class="filter-options">
+              <label><input type="checkbox" name="search-field" value="name" checked> <span data-i18n="nameField">Όνομα</span></label>
+              <label><input type="checkbox" name="search-field" value="address"> <span data-i18n="addressField">Διεύθυνση</span></label>
+              <label><input type="checkbox" name="search-field" value="email"> <span data-i18n="emailField">Email</span></label>
+              <label><input type="checkbox" name="search-field" value="phone"> <span data-i18n="phoneField">Τηλέφωνο</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Patients section -->
+      <section class="current-patients">
+        <h2 data-i18n="currentClients">Τρέχοντες πελάτες</h2>
+        <div class="patients-table">
+          <div class="table-header">
+            <span data-i18n="clientHeader">Πελάτης</span>
+            <span data-i18n="addressHeader">Διεύθυνση</span>
+            <span data-i18n="emailHeader">Email</span>
+            <span data-i18n="phoneHeader">Τηλέφωνο</span>
+            <span data-i18n="actionsHeader">Ενέργειες</span>
+          </div>
+          <!-- Dynamic rows inserted by renderer.js -->
+          <div id="patient-rows"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Right column: Vertical Appointments -->
+    <div class="right-pane">
+      <div class="appointments-header">
+        <h2 data-i18n="appointments">Ραντεβού</h2>
+        <a href="apoiment.html" class="view-all" data-i18n="viewAll">Προβολή όλων</a>
+      </div>
+      <div class="appointments-tabs">
+        <!-- FIXED: Added data-tab attributes to the tabs -->
+        <button class="tab active" data-tab="upcoming" data-i18n="upcoming">Επερχόμενα</button>
+        <button class="tab" data-tab="past" data-i18n="past">Παρελθόντα</button>
+      </div>
+      <ul class="appointments-list">
+        <!-- Appointments will be injected here by renderer.js -->
+      </ul>
+    </div>
+  </div>
+
+  <!-- Modal for displaying client details -->
+  <div id="user-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modal-client-name"></h2>
+      <div id="modal-client-details"></div>
+    </div>
+  </div>
+
+  <!-- Database Reset Button (initially hidden) -->
+  <div id="database-reset-container" style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; display: none;">
+    <button id="reset-database-btn" style="background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 10px 15px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-weight: bold;">
+      Reset Database Connections
+    </button>
+  </div>
+
+  <!-- Load renderer.js at the bottom so DOM is fully loaded -->
+  <script src="renderer.js"></script>
+  <script type="module">
+    import { updateLanguage } from './translate.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      updateLanguage();
+    });
+  </script>
+
+  <script>
+    // Add search functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchInput = document.getElementById('client-search');
+      const filterToggle = document.getElementById('toggle-filters');
+      const filterPanel = document.getElementById('filter-panel');
+      
+      // Toggle filter panel
+      filterToggle?.addEventListener('click', () => {
+        filterPanel.classList.toggle('active');
+      });
+      
+      // Search functionality
+      searchInput?.addEventListener('input', filterClients);
+      
+      function filterClients() {
+        const searchValue = searchInput.value.toLowerCase();
+        const rows = document.querySelectorAll('#patient-rows .table-row');
+        const searchFields = document.querySelectorAll('input[name="search-field"]:checked');
+        const fieldsToSearch = Array.from(searchFields).map(field => field.value);
+        
+        rows.forEach(row => {
+          let match = false;
+          
+          // Get text from each span (except the last one which contains the view button)
+          const spans = Array.from(row.querySelectorAll('span:not(:last-child)'));
+          
+          spans.forEach((span, index) => {
+            // Only search in the fields that are checked
+            if (fieldsToSearch.includes(['name', 'address', 'email', 'phone'][index])) {
+              if (span.textContent.toLowerCase().includes(searchValue)) {
+                match = true;
+              }
+            }
+          });
+          
+          // Show/hide row based on match
+          row.style.display = match || searchValue === '' ? '' : 'none';
+        });
+      }
+
+      // ADDED: Fix for appointment tabs click handling
+      const upcomingTab = document.querySelector('.tab[data-tab="upcoming"]');
+      const pastTab = document.querySelector('.tab[data-tab="past"]');
+      
+      if (upcomingTab && pastTab) {
+        upcomingTab.addEventListener('click', () => {
+          upcomingTab.classList.add('active');
+          pastTab.classList.remove('active');
+          
+          // Refresh the appointment list with the current filter
+          window.electronAPI.getAppointments()
+            .then(appointments => {
+              updateAppointmentsList(appointments);
+            })
+            .catch(err => console.error('Error fetching appointments:', err));
+        });
+        
+        pastTab.addEventListener('click', () => {
+          pastTab.classList.add('active');
+          upcomingTab.classList.remove('active');
+          
+          // Refresh the appointment list with the current filter
+          window.electronAPI.getAppointments()
+            .then(appointments => {
+              updateAppointmentsList(appointments);
+            })
+            .catch(err => console.error('Error fetching appointments:', err));
+        });
+      }
+
+      // ADDED: Database connection monitoring
+      setupDatabaseMonitoring();
+    });
+
+    // ADDED: Function to monitor database connection status
+    function setupDatabaseMonitoring() {
+      // Only setup if electronAPI is available
+      if (!window.electronAPI || !window.electronAPI.getDatabaseStatus) return;
+      
+      let dbCheckInterval = setInterval(async () => {
+        try {
+          // Check database status every 2 seconds
+          const result = await window.electronAPI.getDatabaseStatus();
+          const resetContainer = document.getElementById('database-reset-container');
+          
+          if (result.busy) {
+            // Show reset button if database is busy
+            resetContainer.style.display = 'block';
+          } else {
+            // Hide reset button if database is not busy
+            resetContainer.style.display = 'none';
+          }
+        } catch (err) {
+          console.error('Error checking database status:', err);
+        }
+      }, 2000);
+      
+      // Add reset button functionality
+      document.getElementById('reset-database-btn').addEventListener('click', async () => {
+        try {
+          const result = await window.electronAPI.resetDatabaseManually();
+          if (result.success) {
+            alert('Database connections reset successfully!');
+            
+            // Hide button after successful reset
+            document.getElementById('database-reset-container').style.display = 'none';
+            
+            // Refresh appointment data
+            window.electronAPI.getAppointments()
+              .then(appointments => updateAppointmentsList(appointments))
+              .catch(err => console.error('Error refreshing appointments:', err));
+          } else {
+            alert(`Error: ${result.error || 'Unknown error'}`);
+          }
+        } catch (err) {
+          console.error('Reset failed:', err);
+          alert('Failed to reset database connections');
+        }
+      });
+    }
+  </script>
+
+<style>
+  /* Advanced Search Styles */
+  .search-container {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .search-wrapper {
+    display: flex;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 5px;
+  }
+
+  .search-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+    color: #6c63ff;
+    font-size: 18px;
+  }
+
+  .search-input {
+    flex: 1;
+    border: none;
+    padding: 15px 10px;
+    font-size: 16px;
+    outline: none;
+  }
+
+  .search-options {
+    display: flex;
+    align-items: center;
+  }
+
+  .search-filter-btn {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    color: #777;
+    transition: color 0.2s ease;
+  }
+
+  .search-filter-btn:hover {
+    color: #6c63ff;
+  }
+
+  .filter-panel {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    padding: 15px;
+    margin-top: 5px;
+    display: none;
+  }
+
+  .filter-panel.active {
+    display: block;
+  }
+
+  .filter-group {
+    margin-bottom: 10px;
+  }
+
+  .filter-group label {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .filter-options label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    cursor: pointer;
+  }
+
+  .filter-options input {
+    margin-right: 5px;
+  }
+
+  /* IMPROVED: Enhanced appointments header and buttons styling */
+  .appointments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    position: relative;
+  }
+  
+  .appointments-header h2 {
+    font-size: 20px;
+    margin: 0;
+    color: #333;
+  }
+  
+  .appointments-header .view-all {
+    text-decoration: none;
+    background: rgba(108, 99, 255, 0.1);
+    color: #6c63ff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+  }
+  
+  .appointments-header .view-all:hover {
+    background: rgba(108, 99, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(108, 99, 255, 0.2);
+  }
+  
+  .appointments-header .view-all:active {
+    transform: translateY(0);
+  }
+  
+  .appointments-header .view-all::after {
+    content: "→";
+    display: inline-block;
+    margin-left: 5px;
+    transition: transform 0.2s ease;
+  }
+  
+  .appointments-header .view-all:hover::after {
+    transform: translateX(3px);
+  }
+  
+  /* ENHANCED: Modern tab styling with better visual feedback */
+  .appointments-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    position: relative;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 2px;
+  }
+  
+  .appointments-tabs::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    height: 1px;
+    width: 100%;
+    background: #eee;
+    z-index: 0;
+  }
+  
+  .appointments-tabs .tab {
+    background: none;
+    border: none;
+    padding: 10px 18px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #888;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    border-radius: 4px 4px 0 0;
+    margin-right: 5px;
+  }
+  
+  .appointments-tabs .tab:hover {
+    color: #6c63ff;
+    background: rgba(108, 99, 255, 0.05);
+  }
+  
+  .appointments-tabs .tab.active {
+    color: #6c63ff;
+    border-bottom-color: #6c63ff;
+    background: rgba(108, 99, 255, 0.08);
+  }
+  
+  .appointments-tabs .tab::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #6c63ff;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: -1;
+  }
+  
+  .appointments-tabs .tab.active::before {
+    transform: translateX(0);
+  }
+  
+  .appointments-tabs .tab:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.3);
+  }
+  
+  /* ENHANCED: Appointment items styling with hover effects */
+  .appointments-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    max-height: 480px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #6c63ff #f0f0f0;
+  }
+  
+  .appointments-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .appointments-list::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+  }
+  
+  .appointments-list::-webkit-scrollbar-thumb {
+    background-color: #6c63ff;
+    border-radius: 10px;
+  }
+  
+  .appointment-item {
+    margin-bottom: 12px;
+    background: white;
+    border-radius: 8px;
+    padding: 12px 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    transition: all 0.2s ease;
+    border-left: 3px solid #6c63ff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .appointment-item:hover {
+    box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+  }
+  
+  .appointment-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .patient-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+  }
+  
+  .appointment-type {
+    font-size: 13px;
+    color: #888;
+  }
+  
+  .appointment-date {
+    font-size: 13px;
+    color: #6c63ff;
+    background: rgba(108, 99, 255, 0.08);
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  
+  .appointment-item.empty-message {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+    font-style: italic;
+    background: rgba(240, 240, 240, 0.5);
+    border-left: none;
+  }
+</style>
+</body>
+</html>

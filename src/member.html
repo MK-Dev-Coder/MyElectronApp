@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="membershipManagement">Membership Management</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Load translations -->
+  <script type="module">
+    import { updateLanguage } from './translate.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      updateLanguage();
+    });
+  </script>
+  
+  <style>
+    /* Improved tab navigation */
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .tab-button {
+      padding: 15px 20px;
+      background: transparent;
+      border: none;
+      flex: 1;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .tab-button:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #6c63ff;
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .tab-button.active {
+      color: #6c63ff;
+      background-color: #f7f7ff;
+    }
+    
+    .tab-button.active:after {
+      transform: scaleX(1);
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Enhanced search bar */
+    .search-container {
+      margin: 15px 0;
+    }
+    
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 14px 20px 14px 50px;
+      border: 2px solid #e0e0e0;
+      border-radius: 30px;
+      font-size: 16px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+      background-color: #fff;
+    }
+    
+    .search-input:focus {
+      border-color: #6c63ff;
+      box-shadow: 0 5px 15px rgba(108, 99, 255, 0.15);
+      outline: none;
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #888;
+    }
+    
+    .search-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+    
+    /* Table styles */
+    .members-table {
+      margin-top: 20px;
+      width: 100%;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      overflow-x: auto;
+    }
+    
+    .table-header {
+      display: grid;
+      grid-template-columns: 2fr 2fr 2fr 1fr 1fr;
+      font-weight: bold;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .table-header > span {
+      padding: 0 10px;
+    }
+    
+    .table-row {
+      display: grid;
+      grid-template-columns: 2fr 2fr 2fr 1fr 1fr;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .table-row > span {
+      padding: 0 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #6c63ff;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    /* Member badge */
+    .member-badge {
+      display: inline-block;
+      background: #6c63ff;
+      color: white;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 0;
+      color: #777;
+    }
+    
+    .empty-state img {
+      max-width: 120px;
+      margin-bottom: 20px;
+      opacity: 0.6;
+    }
+    
+    .empty-state h3 {
+      margin-bottom: 10px;
+      color: #555;
+    }
+    
+    .success-toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #27ae60;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-weight: 500;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+      z-index: 9999;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, 20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+      .table-row, .table-header {
+        grid-template-columns: 2fr 2fr 1fr;
+      }
+      
+      .table-row > span:nth-child(3),
+      .table-header > span:nth-child(3) {
+        display: none;
+      }
+    }
+
+    .members-table {
+    position: relative;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .table-header {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
+    padding: 15px 10px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  
+  /* Create scrollable containers for both tabs */
+  #all-client-rows,
+  #member-only-rows {
+    max-height: 480px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #6c63ff #f0f0f0;
+  }
+  
+  /* Custom scrollbar for webkit browsers */
+  #all-client-rows::-webkit-scrollbar,
+  #member-only-rows::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  #all-client-rows::-webkit-scrollbar-track,
+  #member-only-rows::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+  }
+  
+  #all-client-rows::-webkit-scrollbar-thumb,
+  #member-only-rows::-webkit-scrollbar-thumb {
+    background-color: #6c63ff;
+    border-radius: 10px;
+  }
+  
+  /* Improve table row styling */
+  .table-row {
+    padding: 12px 10px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .table-row:hover {
+    background-color: rgba(108, 99, 255, 0.05);
+  }
+  
+  /* Ensure empty states appear in the scrollable area */
+  .empty-state {
+    padding: 30px 0;
+  }
+  
+  /* Ensure proper padding for table cells */
+  .table-header > span,
+  .table-row > span {
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+  }
+  </style>
+</head>
+<body>
+ 
+
+  
+  <div class="main-container">
+    <!-- Sidebar (left column) -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="menu">
+        <ul>
+          <li class="menu-item">
+            <a href="index.html">
+              <img src="images/home.png" alt="Dashboard Icon" />
+              <span data-i18n="home">Home</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="user.html">
+              <img src="images/add-user.png" alt="Add User Icon" />
+              <span data-i18n="addUser">Add User</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="editUser.html">
+              <img src="images/user.png" alt="Edit User Icon" />
+              <span data-i18n="editUser">Edit User</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="member.html">
+              <img src="images/team.png" alt="Patients Icon" />
+              <span data-i18n="Members">Member</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="analytics.html">
+              <img src="images/analytics.png" alt="Analytics Icon">
+              <span data-i18n="analytics">Analytics</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="export.html" id="export-btn">
+              <img src="images/sheet.png" alt="Export Icon" />
+              <span data-i18n="exportToExcel">Export to Excel</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="apoiment.html">
+              <img src="images/add-event.png" alt="Appointment Icon" />
+              <span data-i18n="appointment">Appointment</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="settings.html">
+              <img src="images/setting.png" alt="Settings Icon" />
+              <span data-i18n="settings">Settings</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="help.html">
+              <img src="images/question.png" alt="Help Icon" />
+              <span data-i18n="help">Help</span>
+            </a>
+          </li>
+          <li class="menu-item logout">
+            <a href="#">
+              <img src="images/door.png" alt="Logout Icon" />
+              <span data-i18n="logout">Logout</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Middle Content: Tabs for All Clients and Members Only -->
+    <div class="middle-content">
+      <h1 data-i18n="memberManagement">Member Management</h1>
+      
+      <!-- Enhanced Search functionality -->
+      <div class="search-container">
+        <div class="search-wrapper">
+          <div class="search-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+            </svg>
+          </div>
+          <input type="text" id="member-search" class="search-input" placeholder="Search by name, phone, or email..." data-i18n-placeholder="searchClients" />
+        </div>
+      </div>
+      
+      <!-- Tab Navigation -->
+      <div class="tabs">
+        <button class="tab-button active" data-tab="all-clients" data-i18n="allClients">All Clients</button>
+        <button class="tab-button" data-tab="members-only" data-i18n="membersOnly">Members Only</button>
+      </div>
+      
+      <!-- All Clients Tab -->
+      <div id="all-clients" class="tab-content active">
+        <section class="current-patients">
+          <h2 data-i18n="clientMembership">Client Membership Status</h2>
+          <div class="members-table">
+            <div class="table-header">
+              <span data-i18n="clientHeader">Client</span>
+              <span data-i18n="phoneHeader">Phone</span>
+              <span data-i18n="emailHeader">Email</span>
+              <span data-i18n="memberStatus">Member Status</span>
+              <span data-i18n="memberSince">Member Since</span>
+            </div>
+            <!-- The rows will be injected dynamically -->
+            <div id="all-client-rows"></div>
+          </div>
+        </section>
+      </div>
+      
+      <!-- Members Only Tab -->
+      <div id="members-only" class="tab-content">
+        <section class="current-patients">
+          <h2 data-i18n="activeMembers">Active Members</h2>
+          <div class="members-table">
+            <div class="table-header">
+              <span data-i18n="clientHeader">Client</span>
+              <span data-i18n="phoneHeader">Phone</span>
+              <span data-i18n="emailHeader">Email</span>
+              <span data-i18n="memberStatus">Member Status</span>
+              <span data-i18n="memberSince">Member Since</span>
+            </div>
+            <!-- The member rows will be injected dynamically -->
+            <div id="member-only-rows"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // When the page loads, fetch and display clients with membership info
+    document.addEventListener('DOMContentLoaded', () => {
+      loadClientsWithMemberStatus();
+      setupMobileMenu();
+      setupSearch();
+      setupTabs();
+    });
+  
+    // Setup tab functionality
+    function setupTabs() {
+      const tabButtons = document.querySelectorAll('.tab-button');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          // Remove active class from all buttons and contents
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabContents.forEach(content => content.classList.remove('active'));
+          
+          // Add active class to clicked button and corresponding content
+          button.classList.add('active');
+          const tabId = button.getAttribute('data-tab');
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+    }
+  
+    // Setup mobile menu toggle
+    function setupMobileMenu() {
+      const menuToggle = document.getElementById('menu-toggle');
+      const sidebar = document.getElementById('sidebar');
+      
+      menuToggle?.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+      });
+      
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && 
+            !e.target.closest('#sidebar') && 
+            !e.target.closest('#menu-toggle') &&
+            sidebar.classList.contains('active')) {
+          sidebar.classList.remove('active');
+        }
+      });
+    }
+  
+    // Setup search functionality
+    function setupSearch() {
+      const searchInput = document.getElementById('member-search');
+      
+      searchInput?.addEventListener('input', () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const activeTabId = document.querySelector('.tab-button.active').getAttribute('data-tab');
+        const rows = document.querySelectorAll(`#${activeTabId} .table-row`);
+        
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+          const clientName = row.querySelector('.client-name').textContent.toLowerCase();
+          const clientPhone = row.querySelector('.client-phone').textContent.toLowerCase();
+          const clientEmail = row.querySelector('.client-email')?.textContent.toLowerCase() || '';
+          
+          if (clientName.includes(searchTerm) || 
+              clientPhone.includes(searchTerm) || 
+              clientEmail.includes(searchTerm)) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+        
+        // Show empty state if no matching results
+        const emptyStateEl = document.querySelector(`#${activeTabId} .empty-search-results`);
+        if (visibleCount === 0 && !emptyStateEl && searchTerm) {
+          const emptyState = document.createElement('div');
+          emptyState.className = 'empty-state empty-search-results';
+          emptyState.innerHTML = `
+            <h3 data-i18n="noSearchResults">No matching results found</h3>
+            <p data-i18n="adjustSearchTerm">Try adjusting your search term</p>
+          `;
+          document.querySelector(`#${activeTabId} .members-table`).appendChild(emptyState);
+          
+          // Apply translations to newly added elements
+          import('./translate.js').then(module => {
+            if (module.updateLanguage) {
+              module.updateLanguage();
+            }
+          });
+        } else if ((visibleCount > 0 || !searchTerm) && emptyStateEl) {
+          emptyStateEl.remove();
+        }
+      });
+    }
+  
+    // Fetch clients via Electron API and render them in both tables
+    function loadClientsWithMemberStatus() {
+      // FIXED: Use getClientsWithMembership instead of getClients
+      window.electronAPI.getClientsWithMembership()
+        .then(clients => {
+          const allClientRows = document.getElementById('all-client-rows');
+          const memberOnlyRows = document.getElementById('member-only-rows');
+          
+          allClientRows.innerHTML = '';
+          memberOnlyRows.innerHTML = '';
+          
+          let memberCount = 0;
+          
+          import('./translate.js').then(module => {
+            const lang = localStorage.getItem('preferredLanguage') || 'en';
+            const translations = module.translations[lang] || module.translations.en;
+            
+            clients.forEach(client => {
+              // Set default values if not present
+              const isMember = client.isMember === true || client.isMember === 'true' || false;
+              const memberSince = client.memberSince || '';
+              
+              // Create row for all clients tab
+              const row = document.createElement('div');
+              row.classList.add('table-row');
+              
+              // Ensure values are not undefined
+              const name = client.name || '';
+              const phone = client.phone || '';
+              const email = client.email || '';
+              
+              row.innerHTML = `
+                <span class="client-name" title="${name}">${name}</span>
+                <span class="client-phone" title="${phone}">${phone}</span>
+                <span class="client-email" title="${email}">${email}</span>
+                <span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" class="member-toggle" data-client-id="${client.id}" ${isMember ? 'checked' : ''}>
+                    <span class="slider"></span>
+                  </label>
+                </span>
+                <span class="member-since">${isMember ? (memberSince || translations.yes || 'Yes') : (translations.no || 'No')}</span>
+              `;
+              
+              allClientRows.appendChild(row);
+              
+              // If client is a member, also add to the members-only tab
+              if (isMember) {
+                memberCount++;
+                const memberRow = row.cloneNode(true);
+                memberOnlyRows.appendChild(memberRow);
+              }
+            });
+            
+            // Show empty state if no members
+            if (memberCount === 0) {
+              const emptyState = document.createElement('div');
+              emptyState.className = 'empty-state';
+              emptyState.innerHTML = `
+                <h3 data-i18n="noMembersYet">No Active Members Yet</h3>
+                <p data-i18n="activateMembersInstruction">Toggle membership status in the All Clients tab to add members.</p>
+              `;
+              memberOnlyRows.appendChild(emptyState);
+            }
+            
+            // Add event listeners for each toggle switch in both tabs
+            const toggles = document.querySelectorAll('.member-toggle');
+            toggles.forEach(toggle => {
+              toggle.addEventListener('change', (e) => {
+                const clientId = e.target.getAttribute('data-client-id');
+                const isMember = e.target.checked;
+                
+                // Update the membership status in the UI immediately
+                const memberSinceEl = e.target.closest('.table-row').querySelector('.member-since');
+                if (isMember) {
+                  const today = new Date().toLocaleDateString();
+                  memberSinceEl.textContent = today;
+                } else {
+                  memberSinceEl.textContent = translations.no || 'No';
+                }
+                
+                // Update in the database and refresh the members-only tab
+                updateMembershipStatus(clientId, isMember);
+              });
+            });
+            
+            // Apply translations to newly created elements
+            if (module.updateLanguage) {
+              module.updateLanguage();
+            }
+          });
+        })
+        .catch(err => console.error('Error loading clients:', err));
+    }
+  
+    // Update membership status in the database
+    function updateMembershipStatus(clientId, isMember) {
+      const memberSince = isMember ? new Date().toISOString().split('T')[0] : null;
+      
+      // Call the API to update the client
+      window.electronAPI.updateMembership(clientId, isMember, memberSince)
+        .then(() => {
+          // Show success toast with translation
+          import('./translate.js').then(module => {
+            const lang = localStorage.getItem('preferredLanguage') || 'en';
+            const translations = module.translations[lang] || module.translations.en;
+            showToast(isMember ? 
+              (translations.memberAddSuccess || 'Client added as member successfully!') : 
+              (translations.memberRemoveSuccess || 'Client removed from membership.')
+            );
+          });
+          
+          // Refresh the members-only tab
+          // FIXED: Use getClientsWithMembership instead of getClients
+          window.electronAPI.getClientsWithMembership()
+            .then(clients => {
+              const memberOnlyRows = document.getElementById('member-only-rows');
+              memberOnlyRows.innerHTML = '';
+              
+              let memberCount = 0;
+              
+              import('./translate.js').then(module => {
+                const lang = localStorage.getItem('preferredLanguage') || 'en';
+                const translations = module.translations[lang] || module.translations.en;
+                
+                clients.forEach(client => {
+                  const isMember = client.isMember === true || client.isMember === 'true' || false;
+                  const memberSince = client.memberSince || '';
+                  
+                  // If client is a member, add to the members-only tab
+                  if (isMember) {
+                    memberCount++;
+                    const memberRow = document.createElement('div');
+                    memberRow.classList.add('table-row');
+                    
+                    const name = client.name || '';
+                    const phone = client.phone || '';
+                    const email = client.email || '';
+                    
+                    memberRow.innerHTML = `
+                      <span class="client-name" title="${name}">${name}</span>
+                      <span class="client-phone" title="${phone}">${phone}</span>
+                      <span class="client-email" title="${email}">${email}</span>
+                      <span>
+                        <label class="toggle-switch">
+                          <input type="checkbox" class="member-toggle" data-client-id="${client.id}" checked>
+                          <span class="slider"></span>
+                        </label>
+                      </span>
+                      <span class="member-since">${memberSince || translations.yes || 'Yes'}</span>
+                    `;
+                    
+                    memberOnlyRows.appendChild(memberRow);
+                  }
+                });
+                
+                // Show empty state if no members
+                if (memberCount === 0) {
+                  const emptyState = document.createElement('div');
+                  emptyState.className = 'empty-state';
+                  emptyState.innerHTML = `
+                    <h3 data-i18n="noMembersYet">No Active Members Yet</h3>
+                    <p data-i18n="activateMembersInstruction">Toggle membership status in the All Clients tab to add members.</p>
+                  `;
+                  memberOnlyRows.appendChild(emptyState);
+                }
+                
+                // Add event listeners for each toggle switch in the members only tab
+                const toggles = document.querySelectorAll('#member-only-rows .member-toggle');
+                toggles.forEach(toggle => {
+                  toggle.addEventListener('change', (e) => {
+                    const clientId = e.target.getAttribute('data-client-id');
+                    const isMember = e.target.checked;
+                    
+                    if (!isMember) {
+                      // Remove from members tab immediately
+                      e.target.closest('.table-row').remove();
+                      
+                      // Update in the all clients tab
+                      const allClientsToggle = document.querySelector(`#all-client-rows .member-toggle[data-client-id="${clientId}"]`);
+                      if (allClientsToggle) {
+                        allClientsToggle.checked = false;
+                        const memberSinceEl = allClientsToggle.closest('.table-row').querySelector('.member-since');
+                        memberSinceEl.textContent = translations.no || 'No';
+                      }
+                      
+                      // Update in the database
+                      updateMembershipStatus(clientId, false);
+                      
+                      // Check if members tab is now empty
+                      if (document.querySelectorAll('#member-only-rows .table-row').length === 0) {
+                        const emptyState = document.createElement('div');
+                        emptyState.className = 'empty-state';
+                        emptyState.innerHTML = `
+                          <h3 data-i18n="noMembersYet">No Active Members Yet</h3>
+                          <p data-i18n="activateMembersInstruction">Toggle membership status in the All Clients tab to add members.</p>
+                        `;
+                        document.getElementById('member-only-rows').appendChild(emptyState);
+                        
+                        // Apply translations to newly added elements
+                        if (module.updateLanguage) {
+                          module.updateLanguage();
+                        }
+                      }
+                    }
+                  });
+                });
+                
+                // Apply translations to newly created elements
+                if (module.updateLanguage) {
+                  module.updateLanguage();
+                }
+              });
+            });
+        })
+        .catch(err => {
+          console.error('Error updating membership status:', err);
+          
+          // Show translated error alert
+          import('./translate.js').then(module => {
+            const lang = localStorage.getItem('preferredLanguage') || 'en';
+            const translations = module.translations[lang] || module.translations.en;
+            alert(translations.membershipUpdateError || 'Error updating membership status. Please try again.');
+          });
+        });
+    }
+    
+    // Function to show toast notifications
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.classList.add('success-toast');
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      // Remove the toast after 2.5 seconds
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translate(-50%, 20px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 2200);
+    }
+  </script>
+</body>
+</html>

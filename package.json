@@ -1,0 +1,104 @@
+{
+  "name": "dental-office-manager",
+  "version": "1.0.0",
+  "description": "A comprehensive Electron application for managing dental office clients with offline database capabilities.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "build": "electron-builder --win",
+    "build:all": "electron-builder -mwl",
+    "release": "electron-builder --win --publish always"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "electron-log": "^5.0.3",
+    "electron-updater": "^6.1.7",
+    "nedb": "^1.8.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": "^34.1.1",
+    "electron-builder": "^23.0.0",
+    "electron-rebuild": "^3.2.9"
+  },
+  "build": {
+    "appId": "com.yourdental.app",
+    "productName": "Dental Office Manager",
+    "copyright": "Copyright © 2025 MK Development",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "MK-Dev-Coder",
+        "repo": "MyElectronApp"
+      }
+    ],
+    "files": [
+      "**/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,__pycache__,thumbs.db,.gitignore,.gitattributes}",
+      "!**/{__pycache__,*.py[cod],*.so,*.dylib,*.pyd,*.pyo}",
+      "!{.env,.env.*,.npmrc,pnpm-lock.yaml}"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Dental Office Manager",
+      "license": "LICENSE",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}.${ext}"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MK-Dev-Coder/MyElectronApp.git"
+  },
+  "keywords": [
+    "electron",
+    "database",
+    "offline",
+    "clients",
+    "dental",
+    "healthcare",
+    "office-management",
+    "appointment"
+  ],
+  "author": {
+    "name": "MK Development",
+    "email": "your-email@example.com",
+    "url": "https://github.com/MK-Dev-Coder"
+  },
+  "license": "MIT"
+}

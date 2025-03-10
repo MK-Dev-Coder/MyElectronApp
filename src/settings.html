@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html> <!-- Removed hardcoded lang="en" attribute -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="settingsTitle">Settings</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    /* ----------------------------
+       Base Page + Sidebar Styles
+       ---------------------------- */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      background-color: #f5f7fa;
+      color: #333;
+    }
+
+    /* ----------------------------
+       Main Content Area
+       ---------------------------- */
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+    }
+
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 30px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    /* ----------------------------
+       Container for the Boxes
+       ---------------------------- */
+    .boxes-container {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      max-width: 900px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ----------------------------
+       Custom Box
+       ---------------------------- */
+    .custom-box {
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 380px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .custom-box:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .custom-box h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-weight: 600;
+      color: #3498db;
+      font-size: 20px;
+      border-bottom: 2px solid #f2f2f2;
+      padding-bottom: 12px;
+      position: relative;
+    }
+    
+    .custom-box h2:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 40px;
+      height: 2px;
+      background-color: #3498db;
+    }
+
+    /* ----------------------------
+       Language Selector Styling
+       ---------------------------- */
+    .language-selector {
+      margin-top: 15px;
+    }
+    
+    .language-selector label {
+      display: block;
+      margin-bottom: 10px;
+      color: #555;
+      font-weight: 500;
+    }
+    
+    .language-option {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .language-option:hover {
+      background-color: #f0f7ff;
+      border-color: #a0c9ff;
+    }
+    
+    .language-option.selected {
+      background-color: #e6f3ff;
+      border-color: #3498db;
+    }
+    
+    .language-flag {
+      width: 24px;
+      height: 24px;
+      margin-right: 12px;
+      border-radius: 3px;
+      object-fit: cover;
+    }
+    
+    .language-name {
+      font-size: 15px;
+    }
+
+    /* ----------------------------
+       Data Management Buttons
+       ---------------------------- */
+    .option-group {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .option-btn {
+      display: flex;
+      align-items: center;
+      background-color: #f8f9fa;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #333;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    
+    .option-btn i {
+      margin-right: 10px;
+      font-size: 16px;
+    }
+    
+    .btn-backup {
+      background-color: #e8f4fd;
+      color: #2980b9;
+    }
+    
+    .btn-backup:hover {
+      background-color: #d4e9fa;
+    }
+    
+    .btn-backup i {
+      color: #3498db;
+    }
+    
+    .btn-clear {
+      background-color: #fff4e6;
+      color: #d35400;
+    }
+    
+    .btn-clear:hover {
+      background-color: #ffe8cc;
+    }
+    
+    .btn-clear i {
+      color: #e67e22;
+    }
+    
+    .btn-reset {
+      background-color: #fee7e7;
+      color: #c0392b;
+    }
+    
+    .btn-reset:hover {
+      background-color: #fdcece;
+    }
+    
+    .btn-reset i {
+      color: #e74c3c;
+    }
+
+    /* ----------------------------
+       Toast Notification
+       ---------------------------- */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background-color: #2ecc71;
+      color: white;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 1000;
+    }
+    
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .toast i {
+      margin-right: 10px;
+    }
+    
+    .toast.error {
+      background-color: #e74c3c;
+    }
+    
+    .toast.warning {
+      background-color: #f39c12;
+    }
+
+    /* ----------------------------
+       Responsive Adjustments
+       ---------------------------- */
+    @media (max-width: 768px) {
+      .boxes-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .custom-box {
+        max-width: 100%;
+      }
+    }
+    /* Update Button Styling */
+.btn-update {
+  background-color: #e8f4fd;
+  color: #2980b9;
+}
+
+.btn-update:hover {
+  background-color: #d4e9fa;
+}
+
+.btn-update i {
+  color: #3498db;
+}
+
+.btn-install {
+  background-color: #e3fcef;
+  color: #27ae60;
+}
+
+.btn-install:hover {
+  background-color: #cff7e3;
+}
+
+.btn-install i {
+  color: #2ecc71;
+}
+
+.update-info {
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.update-status {
+  margin-top: 5px;
+  color: #555;
+}
+
+.update-status.checking {
+  color: #3498db;
+}
+
+.update-status.available {
+  color: #27ae60;
+  font-weight: 500;
+}
+
+.update-status.error {
+  color: #e74c3c;
+}
+  </style>
+  
+  <!-- Load translations immediately before page renders -->
+  <script type="module">
+    // Apply translations as soon as possible
+    import('./translate.js')
+      .then(module => {
+        if (module.updateLanguage) {
+          module.updateLanguage();
+        }
+      })
+      .catch(err => console.error('Translation module error:', err));
+  </script>
+</head>
+<body>
+
+  <!-- Sidebar (left column) -->
+  <aside class="sidebar">
+    <nav class="menu">
+      <ul>
+        <li class="menu-item">
+          <a href="index.html">
+            <img src="images/home.png" alt="Dashboard Icon" />
+            <span data-i18n="home">Home</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="user.html">
+            <img src="images/add-user.png" alt="Add User Icon" />
+            <span data-i18n="addUser">Add User</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="editUser.html">
+            <img src="images/user.png" alt="Edit User Icon" />
+            <span data-i18n="editUser">Edit User</span>
+          </a>
+        </li>
+        <li class="menu-item">
+            <a href="member.html">
+              <img src="images/team.png" alt="Patients Icon" />
+              <span data-i18n="Members">Member</span>
+            </a>
+          </li>
+        <li class="menu-item">
+          <a href="analytics.html">
+            <img src="images/analytics.png" alt="Analytics Icon">
+            <span data-i18n="analytics">Analytics</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="export.html" id="export-btn">
+            <img src="images/sheet.png" alt="Export Icon" />
+            <span data-i18n="exportToExcel">Export to Excel</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="apoiment.html">
+            <img src="images/add-event.png" alt="Appointment Icon" />
+            <span data-i18n="appointment">Appointment</span>
+          </a>
+        </li>
+        <li class="menu-item active">
+          <a href="settings.html">
+            <img src="images/setting.png" alt="Settings Icon" />
+            <span data-i18n="settings">Settings</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="help.html">
+            <img src="images/question.png" alt="Help Icon" />
+            <span data-i18n="help">Help</span>
+          </a>
+        </li>
+        <li class="menu-item logout">
+          <a href="#">
+            <img src="images/door.png" alt="Logout Icon" />
+            <span data-i18n="logout">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main-container">
+    <h1 data-i18n="settingsHeading">Settings</h1>
+
+    <!-- Flex container for the boxes -->
+    <div class="boxes-container">
+
+      <!-- Language Box -->
+      <div class="custom-box">
+        <h2 data-i18n="languageOptions">Language Options</h2>
+        <div class="language-selector">
+          <label for="languageSelect" data-i18n="selectLanguage">Select Language:</label>
+          
+          <!-- Custom language selector with visible flags -->
+          <div id="language-options">
+            <div class="language-option" data-lang="en">
+              <img src="images/united-kingdom.png" alt="English Flag" class="language-flag">
+              <span class="language-name">English</span>
+            </div>
+            
+            <div class="language-option" data-lang="el">
+              <img src="images/greece.png" alt="Greek Flag" class="language-flag">
+              <span class="language-name">Ελληνικά</span>
+            </div>
+          </div>
+          
+          <!-- Hidden select for form submission if needed -->
+          <select id="languageSelect" style="display: none;">
+            <option value="en">English</option>
+            <option value="el">Ελληνικά</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Data Management Box -->
+      <div class="custom-box">
+        <h2 data-i18n="dataManagement">Data Management</h2>
+        <div class="option-group">
+          <button id="backup-data-btn" class="option-btn btn-backup">
+            <i class="fas fa-cloud-download-alt"></i>
+            <span data-i18n="backupData">Backup Data</span>
+          </button>
+          
+          <button id="clear-cache-btn" class="option-btn btn-clear">
+            <i class="fas fa-broom"></i>
+            <span data-i18n="clearCache">Clear Cache</span>
+          </button>
+          
+          <button id="reset-settings-btn" class="option-btn btn-reset">
+            <i class="fas fa-undo-alt"></i>
+            <span data-i18n="resetSettings">Reset Settings</span>
+          </button>
+        </div>
+      </div>
+<!-- Application Updates Box -->
+<div class="custom-box">
+  <h2 data-i18n="appUpdates">Application Updates</h2>
+  <div class="update-info">
+    <p>
+      <span data-i18n="currentVersion">Current Version</span>: 
+      <span id="current-version">1.0.0</span>
+    </p>
+    <p id="update-status" class="update-status">
+      <span data-i18n="upToDate">Your application is up to date</span>
+    </p>
+  </div>
+  <div class="option-group">
+    <button id="check-update-btn" class="option-btn btn-update">
+      <i class="fas fa-sync-alt"></i>
+      <span data-i18n="checkForUpdates">Check for Updates</span>
+    </button>
+    <button id="install-update-btn" class="option-btn btn-install" style="display: none;">
+      <i class="fas fa-download"></i>
+      <span data-i18n="installUpdate">Install Update</span>
+    </button>
+  </div>
+</div>
+    </div> <!-- End .boxes-container -->
+    
+    <!-- Toast notification container -->
+    <div id="toast" class="toast">
+      <i class="fas fa-check-circle"></i>
+      <span id="toast-message"></span>
+    </div>
+  </div> <!-- End .main-container -->
+
+  
+
+  <script>
+    // Show toast notification function
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toast-message');
+      
+      // Clear any existing classes
+      toast.className = 'toast';
+      
+      // Add appropriate class based on type
+      if (type === 'error') {
+        toast.classList.add('error');
+        toast.querySelector('i').className = 'fas fa-exclamation-circle';
+      } else if (type === 'warning') {
+        toast.classList.add('warning');
+        toast.querySelector('i').className = 'fas fa-exclamation-triangle';
+      } else {
+        toast.querySelector('i').className = 'fas fa-check-circle';
+      }
+      
+      toastMessage.textContent = message;
+      toast.classList.add('show');
+      
+      // Auto hide after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Update the custom language selector UI
+    function updateLanguageOptionsUI(selectedLang) {
+      const options = document.querySelectorAll('.language-option');
+      options.forEach(option => {
+        if (option.getAttribute('data-lang') === selectedLang) {
+          option.classList.add('selected');
+        } else {
+          option.classList.remove('selected');
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize the language selector UI based on stored preference
+      const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+      updateLanguageOptionsUI(savedLang);
+
+      // Custom language selector click handlers
+      const languageOptions = document.querySelectorAll('.language-option');
+      languageOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          const selectedLanguage = option.getAttribute('data-lang');
+          localStorage.setItem('preferredLanguage', selectedLanguage);
+          
+          // Update translations
+          import('./translate.js')
+            .then(module => {
+              if (module.updateLanguage) {
+                module.updateLanguage();
+              }
+            });
+          
+          // Update selected option UI
+          updateLanguageOptionsUI(selectedLanguage);
+          
+          // Show toast notification
+          showToast(`Language changed to ${selectedLanguage === 'en' ? 'English' : 'Ελληνικά'}`);
+        });
+      });
+
+      // Data Management actions with improved feedback
+      document.getElementById('backup-data-btn').addEventListener('click', async () => {
+        // Show loading state
+        const btn = document.getElementById('backup-data-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        btn.disabled = true;
+        
+        try {
+          // Call the actual backup function in main process
+          const result = await window.electronAPI.backupDatabase();
+          
+          // Reset button
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+          
+          // Show appropriate message based on result
+          if (result.success) {
+            showToast(`Backup completed successfully to: ${result.path}`);
+          } else if (result.canceled) {
+            showToast("Backup canceled", "warning");
+          } else {
+            showToast(`Backup failed: ${result.error}`, "error");
+          }
+        } catch (error) {
+          // Handle errors
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+          showToast(`Backup error: ${error.message}`, "error");
+        }
+      });
+      
+      document.getElementById('clear-cache-btn').addEventListener('click', async () => {
+        const confirmMessage = localStorage.getItem('preferredLanguage') === 'el' ? 
+          "Είστε βέβαιοι ότι θέλετε να καθαρίσετε την cache; Αυτό δεν θα επηρεάσει τα δεδομένα των πελατών σας." : 
+          "Are you sure you want to clear the cache? This will not affect your client data.";
+        
+        if (confirm(confirmMessage)) {
+          const btn = document.getElementById('clear-cache-btn');
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Clearing...';
+          btn.disabled = true;
+          
+          try {
+            // Call the actual cache clearing function in main process via IPC
+            const result = await window.electronAPI.clearAppCache();
+            
+            // Reset button state
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            
+            // Show appropriate message based on result
+            if (result && result.success) {
+              const successMessage = localStorage.getItem('preferredLanguage') === 'el' ? 
+                "Η cache καθαρίστηκε με επιτυχία" : 
+                "Cache cleared successfully";
+              showToast(successMessage);
+            } else {
+              const errorMessage = localStorage.getItem('preferredLanguage') === 'el' ?
+                "Σφάλμα κατά τον καθαρισμό της cache" :
+                "Error clearing cache";
+              showToast(errorMessage, "error");
+            }
+          } catch (error) {
+            // Handle errors
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            showToast(`Error: ${error.message}`, "error");
+          }
+        }
+      });
+      
+      document.getElementById('reset-settings-btn').addEventListener('click', () => {
+        const confirmMessage = localStorage.getItem('preferredLanguage') === 'el' ? 
+          "Είστε βέβαιοι ότι θέλετε να επαναφέρετε όλες τις ρυθμίσεις; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί." : 
+          "Are you sure you want to reset all settings? This cannot be undone.";
+        
+        if (confirm(confirmMessage)) {
+          const btn = document.getElementById('reset-settings-btn');
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+          btn.disabled = true;
+          
+          // Simulate process
+          setTimeout(() => {
+            // Restore button
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            
+            // Actually reset the language
+            localStorage.setItem('preferredLanguage', 'en');
+            
+            // Update UI with imported function
+            import('./translate.js')
+              .then(module => {
+                if (module.updateLanguage) {
+                  module.updateLanguage();
+                  updateLanguageOptionsUI('en');
+                }
+              });
+            
+            // Show success message
+            showToast("Settings reset to default");
+          }, 1000);
+        }
+      });
+    });
+
+    // Set up the update button functionality
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize update section if electronAPI is available
+  if (window.electronAPI && window.electronAPI.getAppVersion) {
+    // Get the current version from Electron
+    window.electronAPI.getAppVersion()
+      .then(version => {
+        document.getElementById('current-version').textContent = version;
+      })
+      .catch(err => console.error('Failed to get app version:', err));
+    
+    // Check for updates button
+    document.getElementById('check-update-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('check-update-btn');
+      const updateStatus = document.getElementById('update-status');
+      const installBtn = document.getElementById('install-update-btn');
+      
+      // Update UI to checking state
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span data-i18n="checking">Checking...</span>';
+      btn.disabled = true;
+      updateStatus.className = 'update-status checking';
+      updateStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span data-i18n="checkingForUpdates">Checking for updates...</span>';
+      
+      try {
+        // Call the checkForUpdates function from main process
+        const result = await window.electronAPI.checkForUpdates();
+        
+        // Reset check button
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        // Handle the result
+        if (result.updateAvailable) {
+          // Show update available message and install button
+          updateStatus.className = 'update-status available';
+          updateStatus.innerHTML = `<i class="fas fa-info-circle"></i> <span data-i18n="updateAvailable">Update available</span>: v${result.version}`;
+          installBtn.style.display = 'flex';
+          showToast(`Update v${result.version} is available!`);
+        } else if (result.error) {
+          // Show error message
+          updateStatus.className = 'update-status error';
+          updateStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.error}`;
+          showToast(`Error checking for updates: ${result.error}`, "error");
+        } else {
+          // No updates available
+          updateStatus.className = 'update-status';
+          updateStatus.innerHTML = '<i class="fas fa-check-circle"></i> <span data-i18n="upToDate">Your application is up to date</span>';
+          showToast("Your application is up to date");
+        }
+        
+        // Update translations
+        import('./translate.js')
+          .then(module => {
+            if (module.updateLanguage) {
+              module.updateLanguage();
+            }
+          });
+      } catch (error) {
+        // Handle unexpected errors
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        updateStatus.className = 'update-status error';
+        updateStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
+        showToast(`Error: ${error.message}`, "error");
+      }
+    });
+    
+    // Install update button
+    document.getElementById('install-update-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('install-update-btn');
+      const updateStatus = document.getElementById('update-status');
+      
+      // Update UI to downloading state
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span data-i18n="installing">Installing...</span>';
+      btn.disabled = true;
+      
+      try {
+        // Tell the main process to install the update
+        await window.electronAPI.installUpdate();
+        
+        // Usually the app will restart, but just in case:
+        updateStatus.innerHTML = '<i class="fas fa-check-circle"></i> <span data-i18n="updateReady">Update ready. Restarting...</span>';
+        btn.innerHTML = originalText;
+      } catch (error) {
+        // Handle unexpected errors
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        updateStatus.className = 'update-status error';
+        updateStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
+        showToast(`Error: ${error.message}`, "error");
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>

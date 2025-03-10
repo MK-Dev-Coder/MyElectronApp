@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="editUserTitle">Edit User</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Load translations immediately before page renders -->
+  <script type="module">
+    // Apply translations as soon as possible
+    import('./translate.js')
+      .then(module => {
+        if (module.updateLanguage) {
+          module.updateLanguage();
+        }
+      })
+      .catch(err => console.error('Translation module error:', err));
+  </script>
+  <style>
+    /* Basic modal styling */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 5% auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 800px;
+      position: relative;
+      border-radius: 10px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .close {
+      float: right;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    
+    /* Improved form styling */
+    .form-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    
+    .form-group {
+      margin-bottom: 10px;
+    }
+    
+    /* Make comment field span full width */
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    /* Table row container with text overflow handling */
+    .table-row {
+      display: grid;
+      grid-template-columns: 2fr 2fr 3fr 2fr 1fr;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #ccc;
+    }
+    
+    /* Handle text overflow in table cells */
+    .table-row > span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 10px;
+    }
+
+    /* Make the Edit button look like the first image's style */
+    .edit-btn {
+      background-color: #6c63ff; /* Purple shade */
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 16px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s ease;
+      white-space: nowrap;
+    }
+    .edit-btn:hover {
+      background-color: #5548c8; /* Darker purple on hover */
+    }
+
+    /* Save changes button */
+    .save-btn {
+      background-color: #6c63ff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s ease;
+      margin-top: 15px;
+      width: 100%;
+    }
+    .save-btn:hover {
+      background-color: #5548c8;
+    }
+
+    /* Basic layout styling */
+    .main-container {
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    .sidebar {
+      width: 250px;
+      background: #ffffff;
+      padding: 20px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+    }
+    
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: #6c63ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    
+    .menu-item {
+      margin-bottom: 15px;
+    }
+    .menu-item a {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: #555555;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .menu-item a img {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+    }
+    .menu-item.active a,
+    .menu-item a:hover {
+      background-color: #f0f4ff;
+      color: #6c63ff;
+    }
+    .middle-content {
+      flex: 1;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    .patients-table {
+      margin-top: 20px;
+      width: 100%;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      overflow-x: auto;
+    }
+    .table-header {
+      display: grid;
+      grid-template-columns: 2fr 2fr 3fr 2fr 1fr;
+      font-weight: bold;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .table-header > span {
+      padding: 0 10px;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 1024px) {
+      .form-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .form-group.full-width {
+        grid-column: span 1;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        z-index: 1000;
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .menu-toggle {
+        display: block;
+      }
+      
+      .middle-content {
+        padding-top: 50px;
+      }
+      
+      .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        padding: 15px;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .table-row,
+      .table-header {
+        grid-template-columns: 3fr 4fr 1fr;
+      }
+      
+      .table-row > span:nth-child(3),
+      .table-header > span:nth-child(3) {
+        display: none;
+      }
+      
+      .table-row > span:nth-child(4),
+      .table-header > span:nth-child(4) {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Menu toggle button for mobile -->
+  <button class="menu-toggle" id="menu-toggle">☰ Menu</button>
+  
+  <div class="main-container">
+    <!-- Sidebar (left column) -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="menu">
+        <ul>
+          <li class="menu-item">
+            <a href="index.html">
+              <img src="images/home.png" alt="Dashboard Icon" />
+              <span data-i18n="home">Home</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="user.html">
+              <img src="images/add-user.png" alt="Doctors Icon" />
+              <span data-i18n="addUser">Add User</span>
+            </a>
+          </li>
+          <li class="menu-item active">
+            <a href="editUser.html">
+              <img src="images/user.png" alt="Patients Icon" />
+              <span data-i18n="editUser">Edit User</span>
+            </a>
+            <li class="menu-item">
+            <a href="member.html">
+              <img src="images/team.png" alt="Patients Icon" />
+              <span data-i18n="Members">Member</span>
+            </a>
+          </li>
+          </li>
+          <li class="menu-item">
+            <a href="analytics.html">
+              <img src="images/analytics.png" alt="Analytics Icon">
+              <span data-i18n="analytics">Analytics</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="export.html" id="export-btn">
+              <img src="images/sheet.png" alt="Calendar Icon" />
+              <span data-i18n="exportToExcel">Export to Excel</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="apoiment.html">
+              <img src="images/add-event.png" alt="Report Icon" />
+              <span data-i18n="appointment">Appointment</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="settings.html">
+              <img src="images/setting.png" alt="Settings Icon" />
+              <span data-i18n="settings">Settings</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="help.html">
+              <img src="images/question.png" alt="Help Icon" />
+              <span data-i18n="help">Help</span>
+            </a>
+          </li>
+          <li class="menu-item logout">
+            <a href="#">
+              <img src="images/door.png" alt="Logout Icon" />
+              <span data-i18n="logout">Logout</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Middle Content: Clients list with Edit button -->
+    <div class="middle-content">
+      <h1 data-i18n="editUsers">Edit Users</h1>
+      <section class="current-patients">
+        <h2 data-i18n="users">Users</h2>
+        <div class="patients-table">
+          <div class="table-header">
+            <span data-i18n="clientHeader">Client</span>
+            <span data-i18n="addressHeader">Address</span>
+            <span data-i18n="emailHeader">Email</span>
+            <span data-i18n="phoneHeader">Phone</span>
+            <span data-i18n="actionsHeader">Actions</span>
+          </div>
+          <!-- The rows will be injected dynamically -->
+          <div id="patient-rows"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="edit-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeEditModal()">&times;</span>
+      <h2 data-i18n="editUser">Edit User</h2>
+      <!-- Form fields for editing all client information -->
+      <div class="form-container">
+        <div class="form-group">
+          <label for="edit-name" data-i18n="name">Name:</label>
+          <input type="text" id="edit-name">
+        </div>
+        <div class="form-group">
+          <label for="edit-email" data-i18n="email">Email:</label>
+          <input type="text" id="edit-email">
+        </div>
+        <div class="form-group">
+          <label for="edit-phone" data-i18n="phone">Phone:</label>
+          <input type="text" id="edit-phone">
+        </div>
+        <div class="form-group">
+          <label for="edit-mobile" data-i18n="mobile">Mobile:</label>
+          <input type="text" id="edit-mobile">
+        </div>
+        <div class="form-group">
+          <label for="edit-address" data-i18n="address">Address:</label>
+          <input type="text" id="edit-address">
+        </div>
+        <div class="form-group">
+          <label for="edit-area" data-i18n="area">Area:</label>
+          <input type="text" id="edit-area">
+        </div>
+        <div class="form-group">
+          <label for="edit-postal_code" data-i18n="postalCode">Postal Code:</label>
+          <input type="text" id="edit-postal_code">
+        </div>
+        <div class="form-group">
+          <label for="edit-country" data-i18n="country">Country:</label>
+          <input type="text" id="edit-country">
+        </div>
+        <div class="form-group">
+          <label for="edit-gender" data-i18n="gender">Gender:</label>
+          <input type="text" id="edit-gender">
+        </div>
+        <div class="form-group">
+          <label for="edit-property" data-i18n="property">Property:</label>
+          <input type="text" id="edit-property">
+        </div>
+        <div class="form-group">
+          <label for="edit-specialty" data-i18n="specialty">Specialty:</label>
+          <input type="text" id="edit-specialty">
+        </div>
+        <div class="form-group">
+          <label for="edit-dentistAssociation" data-i18n="dentistAssociation">Dentist Association:</label>
+          <input type="text" id="edit-dentistAssociation">
+        </div>
+        <div class="form-group">
+          <label for="edit-afm" data-i18n="afm">AFM:</label>
+          <input type="text" id="edit-afm">
+        </div>
+        <div class="form-group">
+          <label for="edit-dou" data-i18n="dou">DOU:</label>
+          <input type="text" id="edit-dou">
+        </div>
+        <div class="form-group">
+          <label for="edit-medical" data-i18n="medical">Medical:</label>
+          <input type="text" id="edit-medical">
+        </div>
+        <div class="form-group full-width">
+          <label for="edit-comment" data-i18n="comment">Comment:</label>
+          <textarea id="edit-comment" rows="3"></textarea>
+        </div>
+      </div>
+      <button onclick="saveUserChanges()" class="save-btn" data-i18n="saveChanges">Save Changes</button>
+    </div>
+  </div>
+
+  <script>
+    // When the page loads, fetch and display clients for editing
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPatientsForEdit();
+      setupMobileMenu();
+    });
+
+    // Setup mobile menu toggle
+    function setupMobileMenu() {
+      const menuToggle = document.getElementById('menu-toggle');
+      const sidebar = document.getElementById('sidebar');
+      
+      menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+      });
+      
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && 
+            !e.target.closest('#sidebar') && 
+            !e.target.closest('#menu-toggle') &&
+            sidebar.classList.contains('active')) {
+          sidebar.classList.remove('active');
+        }
+      });
+    }
+
+    // Fetch clients via Electron API and render them in the table with an "Edit" button
+    function loadPatientsForEdit() {
+      window.electronAPI.getClients()
+        .then(clients => {
+          const patientRowsContainer = document.getElementById('patient-rows');
+          patientRowsContainer.innerHTML = '';
+          clients.forEach(client => {
+            const row = document.createElement('div');
+            row.classList.add('table-row');
+            
+            // Get translations for dynamic button text
+            const editText = getTranslation('edit', 'Edit');
+            
+            // Ensure values are not undefined
+            const name = client.name || '';
+            const address = client.address || '';
+            const email = client.email || '';
+            const phone = client.phone || '';
+            
+            row.innerHTML = `
+              <span title="${name}">${name}</span>
+              <span title="${address}">${address}</span>
+              <span title="${email}">${email}</span>
+              <span title="${phone}">${phone}</span>
+              <span>
+                <button class="edit-btn" data-client='${JSON.stringify(client)}' data-i18n="edit">${editText}</button>
+              </span>
+            `;
+            patientRowsContainer.appendChild(row);
+          });
+          
+          // Apply translations to newly created elements
+          import('./translate.js')
+            .then(module => {
+              if (module.updateLanguage) {
+                module.updateLanguage();
+              }
+            });
+            
+          // Add event listeners for each Edit button
+          const editButtons = document.querySelectorAll('.edit-btn');
+          editButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+              const clientData = JSON.parse(e.target.getAttribute('data-client'));
+              openEditModal(clientData);
+            });
+          });
+        })
+        .catch(err => console.error('Error loading clients:', err));
+    }
+
+    // Helper function to get translations for dynamic content
+    function getTranslation(key, defaultText) {
+      const lang = localStorage.getItem('preferredLanguage') || 'en';
+      
+      // This is a simplified version - in practice, import your translations object
+      const translations = {
+        en: {
+          edit: 'Edit',
+          userUpdateSuccess: 'User data updated successfully!'
+        },
+        el: {
+          edit: 'Επεξεργασία',
+          userUpdateSuccess: 'Τα δεδομένα χρήστη ενημερώθηκαν με επιτυχία!'
+        }
+      };
+      
+      return translations[lang]?.[key] || defaultText;
+    }
+
+    // Opens the modal and prepopulates it with the selected client's data
+    function openEditModal(client) {
+      document.getElementById('edit-name').value = client.name || '';
+      document.getElementById('edit-address').value = client.address || '';
+      document.getElementById('edit-country').value = client.country || '';
+      document.getElementById('edit-postal_code').value = client.postal_code || '';
+      document.getElementById('edit-phone').value = client.phone || '';
+      document.getElementById('edit-mobile').value = client.mobile || '';
+      document.getElementById('edit-email').value = client.email || '';
+      document.getElementById('edit-property').value = client.property || '';
+      document.getElementById('edit-specialty').value = client.specialty || '';
+      document.getElementById('edit-dentistAssociation').value = client.dentistAssociation || '';
+      document.getElementById('edit-afm').value = client.afm || '';
+      document.getElementById('edit-dou').value = client.dou || '';
+      document.getElementById('edit-medical').value = client.medical || '';
+      document.getElementById('edit-gender').value = client.gender || '';
+      document.getElementById('edit-area').value = client.area || '';
+      document.getElementById('edit-comment').value = client.comment || '';
+      
+      // Save the client's ID globally for use in the update logic
+      window.currentEditingClientId = client.id;
+      document.getElementById('edit-modal').style.display = 'block';
+    }
+
+    // Closes the edit modal
+    function closeEditModal() {
+      document.getElementById('edit-modal').style.display = 'none';
+    }
+
+    // Save the updated client data (integrate your database update logic here)
+    function saveUserChanges() {
+      const updatedClient = {
+        id: window.currentEditingClientId,
+        name: document.getElementById('edit-name').value,
+        address: document.getElementById('edit-address').value,
+        country: document.getElementById('edit-country').value,
+        postal_code: document.getElementById('edit-postal_code').value,
+        phone: document.getElementById('edit-phone').value,
+        mobile: document.getElementById('edit-mobile').value,
+        email: document.getElementById('edit-email').value,
+        property: document.getElementById('edit-property').value,
+        specialty: document.getElementById('edit-specialty').value,
+        dentistAssociation: document.getElementById('edit-dentistAssociation').value,
+        afm: document.getElementById('edit-afm').value,
+        dou: document.getElementById('edit-dou').value,
+        medical: document.getElementById('edit-medical').value,
+        gender: document.getElementById('edit-gender').value,
+        area: document.getElementById('edit-area').value,
+        comment: document.getElementById('edit-comment').value
+      };
+
+      window.electronAPI.updateUser(updatedClient)
+        .then(() => {
+          // Get translated success message
+          const successMsg = getTranslation('userUpdateSuccess', 'User data updated successfully!');
+          alert(successMsg);
+          closeEditModal();
+          loadPatientsForEdit(); // Refresh the list with updated data
+        })
+        .catch((err) => {
+          console.error('Error updating user data:', err);
+        });
+    }
+
+    // Close the modal if user clicks outside the modal content
+    window.onclick = function(event) {
+      const modal = document.getElementById('edit-modal');
+      if (event.target === modal) {
+        closeEditModal();
+      }
+    }
+  </script>
+  
+  <!-- Make sure translations are applied after DOM content is loaded -->
+  <script type="module">
+    document.addEventListener('DOMContentLoaded', () => {
+      import('./translate.js')
+        .then(module => {
+          if (module.updateLanguage) {
+            module.updateLanguage();
+          }
+        })
+        .catch(err => console.error('Error loading translations:', err));
+    });
+  </script>
+</body>
+</html>

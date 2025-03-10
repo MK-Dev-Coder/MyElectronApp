@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="addNewClient">Προσθήκη Νέου Πελάτη</title>
+  <link rel="stylesheet" href="addUserStyle.css">
+ 
+</head>
+<body>
+  <div class="main-container">
+    <!-- Sidebar (left column) -->
+    <aside class="sidebar">
+      
+      <nav class="menu">
+        <ul>
+          <li class="menu-item active">
+            <a href="index.html">
+              <img src="images/home.png" alt="Dashboard Icon" />
+              <span data-i18n="home">Home</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="user.html">
+              <img src="images/add-user.png" alt="Doctors Icon" />
+              <span data-i18n="addUser">Add User</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="editUser.html">
+              <img src="images/user.png" alt="Patients Icon" />
+              <span data-i18n="editUser">Edit User</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="member.html">
+              <img src="images/team.png" alt="Patients Icon" />
+              <span data-i18n="Members">Member</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="analytics.html">
+              <img src="images/analytics.png" alt="Analytics Icon">
+              <span data-i18n="analytics">Analytics</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="export.html" id="export-btn">
+              <img src="images/sheet.png" alt="Calendar Icon" />
+              <span data-i18n="exportToExcel">Export to Excel</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="apoiment.html">
+              <img src="images/add-event.png" alt="Report Icon" />
+              <span data-i18n="appointment">Appointment</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="settings.html">
+              <img src="images/setting.png" alt="Settings Icon" />
+              <span data-i18n="settings">Settings</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="help.html">
+              <img src="images/question.png" alt="Help Icon" />
+              <span data-i18n="help">Help</span>
+            </a>
+          </li>
+          <li class="menu-item logout">
+            <a href="#">
+              <img src="images/door.png" alt="Logout Icon" />
+              <span data-i18n="logout">Logout</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Content area (right) with the Add-User Form -->
+    <div class="content">
+      <div class="form-container">
+        <h2 data-i18n="addNewClient">Προσθήκη Νέου Πελάτη</h2>
+
+        <!-- SUCCESS MESSAGE POPUP -->
+        <div class="popup-success" id="popup-success" data-i18n="clientAddedSuccess">
+          Ο πελάτης προστέθηκε στην βάση με επιτυχία!
+        </div>
+
+        <form id="add-user-form">
+          <div class="fields-grid">
+            <!-- Row 1 -->
+            <div>
+              <label for="name" data-i18n="name">Όνομα:</label>
+              <input type="text" id="name" name="name" required>
+            </div>
+            <div>
+              <label for="address" data-i18n="address">Διεύθυνση:</label>
+              <input type="text" id="address" name="address" required>
+            </div>
+            
+            <div>
+              <label for="area" data-i18n="area">Περιοχή:</label>
+              <input type="text" id="area" name="area">
+            </div>
+
+            <!-- Row 2 -->
+            <div>
+              <label for="country" data-i18n="country">Χώρα:</label>
+              <input type="text" id="country" name="country">
+            </div>
+            <div>
+              <label for="postal_code" data-i18n="postalCode">Τ.Κ.:</label>
+              <input type="text" id="postal_code" name="postal_code">
+            </div>
+
+            <!-- Row 3 -->
+            <div>
+              <label for="phone" data-i18n="phone">Τηλέφωνο:</label>
+              <input type="text" id="phone" name="phone" required>
+            </div>
+            <div>
+              <label for="mobile" data-i18n="mobile">Κινητό:</label>
+              <input type="text" id="mobile" name="mobile">
+            </div>
+
+            <!-- Row 4 -->
+            <div>
+              <label for="email_field" data-i18n="email">Email:</label>
+              <input type="email" id="email_field" name="email_field">
+            </div>
+            <div>
+              <label for="property" data-i18n="property">Ιδιότητα:</label>
+              <input type="text" id="property" name="property">
+            </div>
+
+            <!-- Row 5 -->
+            <div>
+              <label for="specialty" data-i18n="specialty">Ειδικότητα:</label>
+              <input type="text" id="specialty" name="specialty">
+            </div>
+            <div>
+              <label for="dentist-association" data-i18n="dentistAssociation">Σύλλογος Οδοντιάτρων:</label>
+              <input type="text" id="dentist-association" name="dentist-association">
+            </div>
+
+            <!-- Row 6 -->
+            <div>
+              <label for="afm" data-i18n="afm">ΑΦΜ:</label>
+              <input type="text" id="afm" name="afm">
+            </div>
+            <div>
+              <label for="dou" data-i18n="dou">ΔΟΥ:</label>
+              <input type="text" id="dou" name="dou">
+            </div>
+
+            <!-- Row 7 (Medical + Gender) -->
+            <div>
+              <label for="medical" data-i18n="hasMedical">Έχετε ιατρείο στο όνομά σας;</label>
+              <select id="medical" name="medical">
+                <option value="Ναι" data-i18n="yes">Ναι</option>
+                <option value="Όχι" data-i18n="no">Όχι</option>
+              </select>
+            </div>
+
+            <!-- GENDER Field: Radio Buttons -->
+            <div>
+              <label data-i18n="gender">Φύλο:</label>
+              <div class="radio-group">
+                <label>
+                  <input type="radio" name="gender" value="Αρσενικό">
+                  <span data-i18n="male">Αρσενικό</span>
+                </label>
+                <label>
+                  <input type="radio" name="gender" value="Θηλυκό">
+                  <span data-i18n="female">Θηλυκό</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Textarea (spans both columns) -->
+            <div class="full-width">
+              <label for="comment" data-i18n="comment">Σχόλιο:</label>
+              <textarea id="comment" name="comment"></textarea>
+            </div>
+          </div><!-- .fields-grid -->
+
+          <button type="submit" id="save-user-btn" data-i18n="save">Αποθήκευση</button>
+        </form>
+      </div><!-- .form-container -->
+    </div><!-- .content -->
+  </div><!-- .main-container -->
+
+  <!-- Script for Electron form submission + popup display -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('add-user-form');
+      const popupSuccess = document.getElementById('popup-success');
+  
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        
+        const genderRadio = document.querySelector('input[name="gender"]:checked');
+        const genderValue = genderRadio ? genderRadio.value : '';
+
+        // Added the 'area' field
+        const newUser = {
+          name: document.getElementById('name').value,
+          address: document.getElementById('address').value,
+          area: document.getElementById('area').value,
+          country: document.getElementById('country').value,
+          postal_code: document.getElementById('postal_code').value,
+          phone: document.getElementById('phone').value,
+          mobile: document.getElementById('mobile').value,
+          email: document.getElementById('email_field').value,
+          property: document.getElementById('property').value,
+          specialty: document.getElementById('specialty').value,
+          dentistAssociation: document.getElementById('dentist-association').value,
+          afm: document.getElementById('afm').value,
+          dou: document.getElementById('dou').value,
+          medical: document.getElementById('medical').value,
+          gender: genderValue,
+          comment: document.getElementById('comment').value
+        };
+        
+        window.electronAPI.saveUser(newUser)
+          .then(() => {
+            popupSuccess.style.display = 'block';
+            setTimeout(() => {
+              popupSuccess.style.display = 'none';
+              window.location.href = 'index.html';
+            }, 3000);
+          })
+          .catch(err => console.error(err));
+      });
+    });
+  </script>
+
+  <!-- ADDED: Translation module import -->
+  <script type="module">
+    import { updateLanguage } from './translate.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      // Apply translations when page loads
+      updateLanguage();
+    });
+  </script>
+</body>
+</html>

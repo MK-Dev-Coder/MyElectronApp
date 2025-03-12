@@ -304,72 +304,68 @@ const translations = {
     memberStatus: "Κατάσταση Μέλους",
     memberSince: "Μέλος από",
     activeMembers: "Ενεργά Μέλη",
-    activeMembers: "Ενεργά Μέλη",
 
-// Add these new translations below:
-// Update-related translations
-checkingForUpdates: "Έλεγχος για ενημερώσεις...",
-updateAvailable: "Διαθέσιμη ενημέρωση",
-noUpdatesAvailable: "Δεν υπάρχουν διαθέσιμες ενημερώσεις",
-installUpdate: "Εγκατάσταση ενημέρωσης",
-updateError: "Σφάλμα ενημέρωσης",
-currentVersion: "Τρέχουσα έκδοση",
-updateAppNow: "Ενημέρωση εφαρμογής τώρα",
-downloadingUpdate: "Λήψη ενημέρωσης...",
-restartToInstall: "Επανεκκίνηση για εγκατάσταση",
+    // Update-related translations
+    checkingForUpdates: "Έλεγχος για ενημερώσεις...",
+    updateAvailable: "Διαθέσιμη ενημέρωση",
+    noUpdatesAvailable: "Δεν υπάρχουν διαθέσιμες ενημερώσεις",
+    installUpdate: "Εγκατάσταση ενημέρωσης",
+    updateError: "Σφάλμα ενημέρωσης",
+    currentVersion: "Τρέχουσα έκδοση",
+    updateAppNow: "Ενημέρωση εφαρμογής τώρα",
+    downloadingUpdate: "Λήψη ενημέρωσης...",
+    restartToInstall: "Επανεκκίνηση για εγκατάσταση",
 
-// Database status translations
-databaseBusy: "Η βάση δεδομένων είναι απασχολημένη",
-resettingConnections: "Επαναφορά συνδέσεων...",
-connectionResetSuccess: "Οι συνδέσεις επαναφέρθηκαν με επιτυχία",
+    // Database status translations
+    databaseBusy: "Η βάση δεδομένων είναι απασχολημένη",
+    resettingConnections: "Επαναφορά συνδέσεων...",
+    connectionResetSuccess: "Οι συνδέσεις επαναφέρθηκαν με επιτυχία",
 
-// Cache related
-cacheClearedSuccess: "Η προσωρινή μνήμη εκκαθαρίστηκε με επιτυχία",
-clearingCache: "Εκκαθάριση προσωρινής μνήμης...",
+    // Cache related
+    cacheClearedSuccess: "Η προσωρινή μνήμη εκκαθαρίστηκε με επιτυχία",
+    clearingCache: "Εκκαθάριση προσωρινής μνήμης...",
 
-// Appointment type options
-checkup: "Έλεγχος",
-cleaning: "Καθαρισμός",
-emergency: "Έκτακτο περιστατικό",
-consultation: "Συμβουλευτική",
-filling: "Σφράγισμα",
-extraction: "Εξαγωγή",
+    // Appointment type options
+    checkup: "Έλεγχος",
+    cleaning: "Καθαρισμός",
+    emergency: "Έκτακτο περιστατικό",
+    consultation: "Συμβουλευτική",
+    filling: "Σφράγισμα",
+    extraction: "Εξαγωγή",
 
-// Toast notifications
-operationSuccessful: "Η λειτουργία ολοκληρώθηκε με επιτυχία",
-operationFailed: "Η λειτουργία απέτυχε",
-tryAgain: "Παρακαλώ δοκιμάστε ξανά",
+    // Toast notifications
+    operationSuccessful: "Η λειτουργία ολοκληρώθηκε με επιτυχία",
+    operationFailed: "Η λειτουργία απέτυχε",
+    tryAgain: "Παρακαλώ δοκιμάστε ξανά",
 
-// Button states
-processing: "Επεξεργασία...",
-saving: "Αποθήκευση...",
-loading: "Φόρτωση...",
+    // Button states
+    processing: "Επεξεργασία...",
+    saving: "Αποθήκευση...",
+    loading: "Φόρτωση...",
 
-// Database management
-optimizeDatabase: "Βελτιστοποίηση βάσης δεδομένων",
-databaseOptimized: "Η βάση δεδομένων βελτιστοποιήθηκε με επιτυχία",
-resetDatabaseConnections: "Επαναφορά συνδέσεων βάσης δεδομένων",
+    // Database management
+    optimizeDatabase: "Βελτιστοποίηση βάσης δεδομένων",
+    databaseOptimized: "Η βάση δεδομένων βελτιστοποιήθηκε με επιτυχία",
+    resetDatabaseConnections: "Επαναφορά συνδέσεων βάσης δεδομένων",
 
-// Filter labels for appointments
-filterByDate: "Φιλτράρισμα κατά ημερομηνία",
-filterByClient: "Φιλτράρισμα κατά πελάτη",
-filterByType: "Φιλτράρισμα κατά τύπο",
-showAll: "Εμφάνιση όλων",
+    // Filter labels for appointments
+    filterByDate: "Φιλτράρισμα κατά ημερομηνία",
+    filterByClient: "Φιλτράρισμα κατά πελάτη",
+    filterByType: "Φιλτράρισμα κατά τύπο",
+    showAll: "Εμφάνιση όλων",
 
-// Form validation messages
-requiredField: "Απαιτούμενο πεδίο",
-invalidEmail: "Μη έγκυρο email",
-invalidPhone: "Μη έγκυρο τηλέφωνο",
+    // Form validation messages
+    requiredField: "Απαιτούμενο πεδίο",
+    invalidEmail: "Μη έγκυρο email",
+    invalidPhone: "Μη έγκυρο τηλέφωνο",
 
-// Analytics terms
-weeklyStats: "Εβδομαδιαίες στατιστικές",
-monthlyStats: "Μηνιαίες στατιστικές",
-yearlyStats: "Ετήσιες στατιστικές",
-totalClients: "Συνολικοί πελάτες",
-newThisMonth: "Νέοι αυτό το μήνα",
-edit: "Επεξεργασία",
-cancel: "Ακύρωση",
-view: "Προβολή"
+    // Analytics terms
+    weeklyStats: "Εβδομαδιαίες στατιστικές",
+    monthlyStats: "Μηνιαίες στατιστικές",
+    yearlyStats: "Ετήσιες στατιστικές",
+    totalClients: "Συνολικοί πελάτες",
+    newThisMonth: "Νέοι αυτό το μήνα",
+    view: "Προβολή"
   }
 };
 

@@ -832,6 +832,19 @@ ipcMain.handle('get-database-status', () => {
   return { busy: busyTimeout !== null };
 });
 
+
+// Optional: Add a dedicated database refresh handler
+ipcMain.handle('refresh-database', async () => {
+  try {
+    // Reset all connections to ensure fresh data
+    await resetAllDatabaseConnections();
+    return { success: true };
+  } catch (error) {
+    console.error('Error refreshing database:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // Set up auto-recovery for database locks
 let lastInputTime = Date.now();
 let recoveryTimer = null;
@@ -929,5 +942,33 @@ ipcMain.handle('install-update', async () => {
   } catch (error) {
     log.error('Error downloading update:', error);
     return { error: error.message };
+  }
+});
+
+// Add this with your other IPC handlers
+ipcMain.on('user-data-updated', (event, userData) => {
+  console.log('User data updated notification received');
+  // Notify all windows except sender
+  BrowserWindow.getAllWindows().forEach(window => {
+    if (!window.isDestroyed() && window.webContents !== event.sender) {
+      window.webContents.send('refresh-data');
+    }
+  });
+});
+
+// Add this with your other IPC handlers (around line 940)
+ipcMain.handle('logout', async () => {
+  try {
+    // Clear session data
+    await session.defaultSession.clearStorageData({
+      storages: ['cookies', 'localstorage', 'sessionstorage', 'indexdb']
+    });
+    
+    app.exit();
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error during logout:', error);
+    return { success: false, error: error.message };
   }
 });

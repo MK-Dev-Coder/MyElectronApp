@@ -28,6 +28,9 @@ function getConnection() {
     fs.mkdirSync(dir, { recursive: true });
   }
   
+  // Track if this is a new database file
+  const isNewDatabase = !fs.existsSync(dbPath);
+  
   try {
     // Create connection with WAL mode
     db = new Database(dbPath, { 
@@ -47,6 +50,12 @@ function getConnection() {
     }, 30000); // 30 seconds timeout
     
     console.log('Database connection established');
+    
+    // Log if this was a new database creation
+    if (isNewDatabase) {
+      console.log('Created new empty database file');
+    }
+    
     return db;
   } catch (err) {
     console.error('Error opening database:', err);
@@ -88,9 +97,17 @@ function getResetConnection() {
 
 // Initialize the database with tables
 function initializeDatabase() {
-  const db = getConnection();
-  
   try {
+    const db = getConnection();
+    const dbPath = path.join(app.getPath('userData'), 'clients.db');
+    const isNewDatabase = !fs.existsSync(dbPath) || fs.statSync(dbPath).size < 5000;
+    
+    if (isNewDatabase) {
+      console.log('New or empty database detected, creating fresh schema...');
+    }
+    
+    console.log('Creating database tables if they don\'t exist...');
+    
     // Create the clients table
     db.exec(`
       CREATE TABLE IF NOT EXISTS clients (
@@ -124,10 +141,26 @@ function initializeDatabase() {
       )
     `);
     
+    // On first run, create an index for performance
+    db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_clients_name ON clients(name);
+      CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(date);
+    `);
+    
+    // Verify that tables were created
+    const tablesExist = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND (name='clients' OR name='appointments')").all();
+    
+    if (tablesExist.length === 2) {
+      console.log('Database tables verified successfully');
+    } else {
+      console.warn('Some database tables may not have been created correctly');
+    }
+    
     console.log('Database initialized successfully');
     return true;
   } catch (err) {
     console.error('Database initialization error:', err);
+    resetConnection(); // Reset on error
     throw err;
   }
 }

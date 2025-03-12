@@ -29,10 +29,26 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('update-membership', clientId, isMember, memberSince),
   clearAppCache: () => ipcRenderer.invoke('clear-app-cache'),
   // Add this to your contextBridge.exposeInMainWorld function
-resetDatabaseManually: () => ipcRenderer.invoke('reset-database-connections'),
-getDatabaseStatus: () => ipcRenderer.invoke('get-database-status'),
-// Add to contextBridge.exposeInMainWorld
-checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
-installUpdate: () => ipcRenderer.invoke('install-update'),
-getAppVersion: () => ipcRenderer.invoke('get-app-version')
+  resetDatabaseManually: () => ipcRenderer.invoke('reset-database-connections'),
+  getDatabaseStatus: () => ipcRenderer.invoke('get-database-status'),
+  // Add to contextBridge.exposeInMainWorld
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  installUpdate: () => ipcRenderer.invoke('install-update'),
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  
+  // ADD THESE NEW METHODS FOR CROSS-WINDOW COMMUNICATION
+  notifyDataUpdate: (userData) => ipcRenderer.send('user-data-updated', userData),
+  onDataUpdate: (callback) => {
+    // Set up event listener and return clean-up function
+    const subscription = (_event, userData) => callback(userData);
+    ipcRenderer.on('refresh-data', subscription);
+    return () => ipcRenderer.removeListener('refresh-data', subscription);
+  },
+  refreshDatabase: () => ipcRenderer.invoke('refresh-database'),
+  // Add database status monitoring - receives busy state updates
+  onDatabaseStatusChange: (callback) => {
+    ipcRenderer.on('database-status', (_event, status) => callback(status));
+  },
+  // Add this to your existing electronAPI object
+logout: () => ipcRenderer.invoke('logout'),
 });

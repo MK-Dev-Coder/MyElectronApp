@@ -1,6 +1,6 @@
 {
   "name": "dental-office-manager",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A comprehensive Electron application for managing dental office clients with offline database capabilities.",
   "main": "main.js",
   "scripts": {
@@ -35,6 +35,11 @@
     ],
     "files": [
       "**/*",
+      "!**/*.db",
+      "!**/clients.db",
+      "!**/analytics.db",
+      "!**/members.db",
+      "!**/data/*.db",
       "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
       "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
       "!**/node_modules/.bin",
@@ -73,7 +78,6 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Dental Office Manager",
-      "license": "LICENSE",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico"
     },

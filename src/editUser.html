@@ -437,6 +437,14 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadPatientsForEdit();
       setupMobileMenu();
+
+      // Add listener for updates from other windows
+      if (window.electronAPI && window.electronAPI.onDataUpdate) {
+        window.electronAPI.onDataUpdate((userData) => {
+          console.log('Received data update from another window, refreshing client list');
+          loadPatientsForEdit();
+        });
+      }
     });
 
     // Setup mobile menu toggle
@@ -558,7 +566,7 @@
       document.getElementById('edit-modal').style.display = 'none';
     }
 
-    // Save the updated client data (integrate your database update logic here)
+    // UPDATED: Save the updated client data and notify other windows
     function saveUserChanges() {
       const updatedClient = {
         id: window.currentEditingClientId,
@@ -581,12 +589,18 @@
       };
 
       window.electronAPI.updateUser(updatedClient)
-        .then(() => {
+        .then((response) => {
           // Get translated success message
           const successMsg = getTranslation('userUpdateSuccess', 'User data updated successfully!');
           alert(successMsg);
           closeEditModal();
           loadPatientsForEdit(); // Refresh the list with updated data
+          
+          // ADDED: Notify all other windows about the update
+          if (window.electronAPI.notifyDataUpdate) {
+            console.log('Broadcasting user update to other windows');
+            window.electronAPI.notifyDataUpdate(updatedClient);
+          }
         })
         .catch((err) => {
           console.error('Error updating user data:', err);
@@ -600,19 +614,6 @@
         closeEditModal();
       }
     }
-  </script>
-  
-  <!-- Make sure translations are applied after DOM content is loaded -->
-  <script type="module">
-    document.addEventListener('DOMContentLoaded', () => {
-      import('./translate.js')
-        .then(module => {
-          if (module.updateLanguage) {
-            module.updateLanguage();
-          }
-        })
-        .catch(err => console.error('Error loading translations:', err));
-    });
-  </script>
+</script>
 </body>
 </html>

@@ -97,6 +97,23 @@ function getAllMembers() {
   }
 }
 
+// Function to clear all members
+function clearAllMembers() {
+  try {
+    if (!membersDb) {
+      console.warn('Members database not initialized when trying to clear');
+      return false;
+    }
+    
+    console.log('Clearing all members...');
+    membersDb.exec('DELETE FROM members');
+    return true;
+  } catch (err) {
+    console.error('Error clearing members database:', err);
+    return false;
+  }
+}
+
 // Close database connection when the app is about to quit
 function closeMembersDatabase() {
   if (membersDb) {
@@ -110,10 +127,12 @@ function closeMembersDatabase() {
   }
 }
 
+// FIXED: Single module.exports with all functions included
 module.exports = {
   initializeMembersDatabase,
   addMember,
   removeMember,
   getAllMembers,
-  closeMembersDatabase
+  closeMembersDatabase,
+  clearAllMembers
 };

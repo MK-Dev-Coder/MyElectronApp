@@ -1,6 +1,6 @@
 {
   "name": "dental-office-manager",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "A comprehensive Electron application for managing dental office clients with offline database capabilities.",
   "main": "main.js",
   "scripts": {
@@ -36,10 +36,16 @@
     "files": [
       "**/*",
       "!**/*.db",
-      "!**/clients.db",
-      "!**/analytics.db",
-      "!**/members.db",
-      "!**/data/*.db",
+      "!**/*.db-journal",
+      "!**/*.db-shm",
+      "!**/*.db-wal",
+      "!**/AppData/**/*.db*",
+      "!**/userData/**/*.db*",
+      "!**/clients.db*",
+      "!**/analytics.db*",
+      "!**/members.db*",
+      "!**/data/**/*.db*",
+      "!**/.first-run-completed",
       "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
       "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
       "!**/node_modules/.bin",
@@ -54,6 +60,13 @@
       "buildResources": "build",
       "output": "dist"
     },
+    "extraResources": [
+      {
+        "from": "src/assets",
+        "to": "assets",
+        "filter": ["**/*"]
+      }
+    ],
     "win": {
       "target": [
         {
@@ -83,7 +96,8 @@
     },
     "portable": {
       "artifactName": "${productName}-Portable-${version}.${ext}"
-    }
+    },
+    "afterPack": "scripts/after-pack.js"
   },
   "repository": {
     "type": "git",

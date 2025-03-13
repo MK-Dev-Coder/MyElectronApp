@@ -123,10 +123,51 @@ function createWindow() {
   win.loadFile('src/index.html');
 }
 
-// Find this existing code around line 103
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // Check if this is the first run
+  const firstRunFlagPath = path.join(app.getPath('userData'), '.first-run-completed');
+  const isFirstRun = !fs.existsSync(firstRunFlagPath);
+  
+  console.log('Initializing databases...');
   initializeDatabase();
   initializeMembersDatabase(); // Initialize the members database
+  
+  // If this is the first run, ensure clean databases
+  if (isFirstRun) {
+    console.log('First run detected! Creating clean databases...');
+    
+    try {
+      // Get database connection
+      const db = getConnection();
+      
+      // Clear clients table
+      db.exec('DELETE FROM clients');
+      console.log('Cleared clients table');
+      
+      // Clear appointments table
+      db.exec('DELETE FROM appointments');
+      console.log('Cleared appointments table');
+      
+      // Clear members table if it exists
+      try {
+        const membersDb = require('./src/membersDatabase');
+        if (typeof membersDb.clearAllMembers === 'function') {
+          membersDb.clearAllMembers();
+        } else {
+          console.log('clearAllMembers function not found, skipping members cleanup');
+        }
+      } catch (err) {
+        console.warn('Error clearing members database:', err);
+      }
+      
+      // Create the first-run flag so we don't clear data again
+      fs.writeFileSync(firstRunFlagPath, new Date().toISOString());
+      console.log('Created first-run flag');
+    } catch (err) {
+      console.error('Error clearing databases on first run:', err);
+    }
+  }
+  
   createWindow();
   createMenu(); // Add menu with database tools
   
@@ -963,7 +1004,7 @@ ipcMain.handle('logout', async () => {
     await session.defaultSession.clearStorageData({
       storages: ['cookies', 'localstorage', 'sessionstorage', 'indexdb']
     });
-    
+
     app.exit();
     
     return { success: true };

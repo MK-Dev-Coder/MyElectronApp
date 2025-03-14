@@ -171,7 +171,7 @@ const translations = {
     Members: "Μέλη",
     // Analytics translations
     analytics: "Αναλυτικά Στοιχεία",
-    clientsPerMonth: "Πελάτες ανά Μήνα",
+    clientsPerMonth: "Πελάτες",
     clientsWithMedical: "Πελάτες με Ιατρείο",
     genderDistribution: "Κατανομή Φύλου",
     male: "Άνδρας",

@@ -754,5 +754,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+<!-- Add common script for logout functionality -->
+<script type="module">
+  import { setupLogout } from './logout.js';
+  document.addEventListener('DOMContentLoaded', setupLogout);
+</script>
+
 </body>
 </html>

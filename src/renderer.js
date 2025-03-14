@@ -112,57 +112,68 @@ function openModal(client) {
   const clientNameEl = document.getElementById('modal-client-name');
   const clientDetailsEl = document.getElementById('modal-client-details');
   
-  // Set the client name in the modal header
-  clientNameEl.textContent = client.name;
+  // Get language preference
+  const lang = localStorage.getItem('preferredLanguage') || 'en';
   
-  // Populate modal with client details
-  clientDetailsEl.innerHTML = `
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-map-marker-alt"></i> <strong>Address:</strong> ${client.address}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-envelope"></i> <strong>Email:</strong> ${client.email || '-'}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-phone"></i> <strong>Phone:</strong> ${client.phone}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-mobile-alt"></i> <strong>Mobile:</strong> ${client.mobile || '-'}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-globe"></i> <strong>Country:</strong> ${client.country || '-'}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-mail-bulk"></i> <strong>Postal Code:</strong> ${client.postal_code || '-'}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-building"></i> <strong>Property:</strong> ${client.property || '-'}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-stethoscope"></i> <strong>Specialty:</strong> ${client.specialty || '-'}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-user-md"></i> <strong>Dentist Association:</strong> ${client.dentistAssociation || '-'}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-id-card"></i> <strong>AFM:</strong> ${client.afm || '-'}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-hourglass-half"></i> <strong>DOU:</strong> ${client.dou || '-'}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-medkit"></i> <strong>Medical:</strong> ${client.medical || '-'}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-venus-mars"></i> <strong>Gender:</strong> ${client.gender || '-'}
-    </p>
-    <p style="margin-bottom: 10px;">
-      <i class="fa fa-comment"></i> <strong>Comment:</strong> ${client.comment || '-'}
-    </p>
-  `;
-  
-  // Display modal
-  modal.style.display = 'block';
+  // Import translations module
+  import('./translate.js').then(module => {
+    const translations = module.translations[lang] || module.translations.en;
+    
+    // Set the client name in the modal header
+    clientNameEl.textContent = client.name;
+    
+    // Populate modal with client details using translations
+    clientDetailsEl.innerHTML = `
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-map-marker-alt"></i> <strong>${translations.address || 'Address'}:</strong> ${client.address}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-map"></i> <strong>${translations.area || 'Area'}:</strong> ${client.area || '-'}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-envelope"></i> <strong>${translations.email || 'Email'}:</strong> ${client.email || '-'}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-phone"></i> <strong>${translations.phone || 'Phone'}:</strong> ${client.phone}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-mobile-alt"></i> <strong>${translations.mobile || 'Mobile'}:</strong> ${client.mobile || '-'}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-globe"></i> <strong>${translations.country || 'Country'}:</strong> ${client.country || '-'}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-mail-bulk"></i> <strong>${translations.postalCode || 'Postal Code'}:</strong> ${client.postal_code || '-'}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-building"></i> <strong>${translations.property || 'Property'}:</strong> ${client.property || '-'}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-stethoscope"></i> <strong>${translations.specialty || 'Specialty'}:</strong> ${client.specialty || '-'}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-user-md"></i> <strong>${translations.dentistAssociation || 'Dentist Association'}:</strong> ${client.dentistAssociation || '-'}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-id-card"></i> <strong>${translations.afm || 'AFM'}:</strong> ${client.afm || '-'}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-hourglass-half"></i> <strong>${translations.dou || 'DOU'}:</strong> ${client.dou || '-'}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-medkit"></i> <strong>${translations.medical || 'Medical'}:</strong> ${client.medical || '-'}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-venus-mars"></i> <strong>${translations.gender || 'Gender'}:</strong> ${client.gender || '-'}
+      </p>
+      <p style="margin-bottom: 10px;">
+        <i class="fa fa-comment"></i> <strong>${translations.comment || 'Comment'}:</strong> ${client.comment || '-'}
+      </p>
+    `;
+    
+    // Show modal and setup closing functionality
+    modal.style.display = 'block';
+  });
 
   // Close modal when the close button is clicked
   const closeBtn = document.querySelector('.modal .close');

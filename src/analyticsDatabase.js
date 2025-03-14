@@ -28,7 +28,8 @@ try {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       month INTEGER,    -- 0 = January, 1 = February, etc.
       year INTEGER,
-      client_count INTEGER DEFAULT 0
+      client_count INTEGER DEFAULT 0,
+      UNIQUE(month, year)
     )
   `);
   
@@ -56,6 +57,37 @@ const analyticsDbWrapper = {
       return stmt.run(month, year, count);
     } catch (err) {
       console.error('Error updating monthly count:', err);
+      throw err;
+    }
+  },
+  
+  // Increment monthly count (this is the new function to use)
+  incrementMonthlyCount(month, year, increment = 1) {
+    try {
+      this.ensureConnection();
+      
+      // Check if record exists
+      const existing = analyticsDb.prepare('SELECT client_count FROM monthly_counts WHERE month = ? AND year = ?')
+        .get(month, year);
+      
+      if (existing) {
+        // Update existing record
+        const stmt = analyticsDb.prepare(`
+          UPDATE monthly_counts 
+          SET client_count = client_count + ? 
+          WHERE month = ? AND year = ?
+        `);
+        return stmt.run(increment, month, year);
+      } else {
+        // Insert new record
+        const stmt = analyticsDb.prepare(`
+          INSERT INTO monthly_counts (month, year, client_count)
+          VALUES (?, ?, ?)
+        `);
+        return stmt.run(month, year, increment);
+      }
+    } catch (err) {
+      console.error('Error incrementing monthly count:', err);
       throw err;
     }
   },

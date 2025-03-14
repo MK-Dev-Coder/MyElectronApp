@@ -333,29 +333,40 @@ ipcMain.handle('save-user', async (event, newUser) => {
     const year = now.getFullYear();
 
     // FIXED: Update the monthly_counts table in the analytics database using better-sqlite3
-    try {
-      // Try to use the analytics wrapper method if available
-      if (analyticsDb && typeof analyticsDb.updateMonthlyCount === 'function') {
-        analyticsDb.updateMonthlyCount(month, year, 1);
-      } else {
-        // Direct way using better-sqlite3
-        const db = analyticsDb.db || analyticsDb;
-        
-        // Look for existing record
-        const row = db.prepare('SELECT * FROM monthly_counts WHERE month = ? AND year = ?').get(month, year);
-        
-        if (row) {
-          // Update existing count
-          db.prepare('UPDATE monthly_counts SET client_count = client_count + 1 WHERE id = ?').run(row.id);
-        } else {
-          // Insert new count
-          db.prepare('INSERT INTO monthly_counts (month, year, client_count) VALUES (?, ?, 1)').run(month, year);
-        }
-      }
-    } catch (err) {
-      console.error('Error updating analytics:', err);
-      // Continue even with error
+   // FIXED: Update the monthly_counts table in the analytics database using better-sqlite3
+try {
+  // First try to use the new incrementMonthlyCount method if available
+  if (analyticsDb && typeof analyticsDb.incrementMonthlyCount === 'function') {
+    analyticsDb.incrementMonthlyCount(month, year, 1);
+  } 
+  // Fall back to updateMonthlyCount if incrementMonthlyCount doesn't exist
+  else if (analyticsDb && typeof analyticsDb.updateMonthlyCount === 'function') {
+    // Try to increment rather than replace by getting existing count first
+    const existingData = analyticsDb.getAllMonthlyCounts().find(
+      item => item.month === month && item.year === year
+    );
+    const currentCount = existingData ? existingData.client_count : 0;
+    analyticsDb.updateMonthlyCount(month, year, currentCount + 1);
+  } 
+  else {
+    // Direct way using better-sqlite3
+    const db = analyticsDb.db || analyticsDb;
+    
+    // Look for existing record
+    const row = db.prepare('SELECT * FROM monthly_counts WHERE month = ? AND year = ?').get(month, year);
+    
+    if (row) {
+      // Update existing count
+      db.prepare('UPDATE monthly_counts SET client_count = client_count + 1 WHERE id = ?').run(row.id);
+    } else {
+      // Insert new count
+      db.prepare('INSERT INTO monthly_counts (month, year, client_count) VALUES (?, ?, 1)').run(month, year);
     }
+  }
+} catch (err) {
+  console.error('Error updating analytics:', err);
+  // Continue even with error
+}
 
     // Get updated client list
     const clients = await getClients();
